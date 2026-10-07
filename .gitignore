@@ -1,0 +1,15 @@
+# Runtime and private evidence stay outside this repository
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+receipts/
+uploads/
+private/
+secrets/
+browser-profile/
+__pycache__/
+node_modules/
+.DS_Store
