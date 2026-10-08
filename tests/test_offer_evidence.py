@@ -2,13 +2,13 @@
 
 import json
 import unittest
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, replace
 from datetime import UTC, datetime, timedelta, timezone
 from decimal import localcontext
 from typing import cast
 from zoneinfo import ZoneInfo
 
-from agent_household import Offer, normalize_offer
+from agent_household import Observation, Offer, Quote, normalize_offer, quote_line
 
 NOW = datetime(2026, 1, 1, 12, tzinfo=UTC)
 
@@ -180,6 +180,155 @@ class SchemaTests(unittest.TestCase):
                            (offer.observation, "source_kind")):
             with self.assertRaises(FrozenInstanceError):
                 setattr(obj, field, "other")
+
+
+class OfferChild(Offer):
+    """Subclass must not bypass exact-type check."""
+
+
+class ObservationChild(Observation):
+    """Subclass must not bypass exact-type check."""
+
+
+class QuoteTests(unittest.TestCase):
+    def test_arithmetic(self) -> None:
+        offer = normalized(fixture())
+        q: Quote = quote_line("5", "each", offer, NOW)
+        self.assertEqual((q.pack_count, q.merchandise_total_cents), (3, 597))
+        self.assertEqual(q.reasons, ("label_unqualified",))
+        self.assertEqual(q.evidence_status, "needs_review")
+        self.assertIsNone(q.all_in_total_cents)
+        self.assertIs(q.approval_allowed, False)
+        self.assertIs(q.ordering_available, False)
+        for need, count in (("4", 2), ("4.000001", 3), ("0.000001", 1)):
+            self.assertEqual(quote_line(need, "each", offer, NOW).pack_count, count)
+        with localcontext() as context:
+            context.prec = 1
+            self.assertEqual(quote_line("5", "each", offer, NOW), q)
+        for unit in ("each", "g", "kg", "ml", "l"):
+            same = replace(offer, pack_unit=unit)
+            self.assertEqual(quote_line("5", unit, same, NOW), q)
+            for other in ("each", "g", "kg", "ml", "l"):
+                if unit != other:
+                    with self.assertRaises(ValueError):
+                        quote_line("5", other, same, NOW)
+        for price in (0, 1_000_000):
+            priced = replace(offer, price_cents=price, pack_quantity="1")
+            self.assertEqual(quote_line("10000", "each", priced, NOW).
+                             merchandise_total_cents, 10000 * price)
+            with self.assertRaises(ValueError):
+                quote_line("10000.000001", "each", priced, NOW)
+        field = "pack_count"
+        with self.assertRaises(FrozenInstanceError):
+            setattr(q, field, 1)
+
+    def test_reasons_and_time(self) -> None:
+        offer = normalized(fixture())
+        for field in ("retailer", "channel", "product_id", "seller_id", "variant_id",
+                      "store_id", "fulfillment"):
+            q = quote_line("5", "each", replace(offer, **{field: None}), NOW)
+            self.assertEqual(q.reasons, ("label_unqualified", "missing_identity"))
+            self.assertEqual(q.evidence_status, "blocked")
+        for stock in ("available", "unavailable", "unknown"):
+            q = quote_line("5", "each", replace(offer, stock=stock), NOW)
+            expected = ("label_unqualified",) if stock == "available" else (
+                "label_unqualified", "stock_" + stock,
+            )
+            self.assertEqual(q.reasons, expected)
+        for label in ("unknown", "partial"):
+            for source in ("public_web", "synthetic_fixture"):
+                changed = replace(offer, label_status=label, observation=replace(
+                    offer.observation, source_kind=source,
+                ))
+                self.assertFalse(quote_line("1", "each", changed, NOW).approval_allowed)
+        self.assertEqual(quote_line("1", "each", offer, NOW + timedelta(minutes=15)).
+                         evidence_status, "needs_review")
+        self.assertIn("stale", quote_line("1", "each", offer, NOW + timedelta(
+            minutes=15, microseconds=1,
+        )).reasons)
+        with self.assertRaises(ValueError):
+            quote_line("1", "each", offer, NOW - timedelta(microseconds=1))
+        blocked = replace(offer, price_cents=None, stock="unknown", retailer=None)
+        q = quote_line("1", "each", blocked, NOW + timedelta(minutes=16))
+        self.assertEqual(q.reasons, ("label_unqualified", "missing_identity",
+                                    "missing_price", "stale", "stock_unknown"))
+        self.assertIsNone(q.merchandise_total_cents)
+        with self.assertRaises(ValueError):
+            tiny = replace(blocked, pack_quantity="0.000001")
+            quote_line("1000000", "each", tiny, NOW)
+
+    def test_bad_inputs_and_bypass(self) -> None:
+        offer = normalized(fixture())
+        bad_quantities: tuple[object, ...] = (
+            None, True, {}, b"1", 1, "0", "-1", "1e2", "1\n", "1000001",
+        )
+        for value in bad_quantities:
+            with self.assertRaises(ValueError):
+                quote_line(cast(str, value), "each", offer, NOW)
+        bad_units: tuple[object, ...] = (None, True, {}, "bad", "each\n")
+        for value in bad_units:
+            with self.assertRaises(ValueError):
+                quote_line("1", cast(str, value), offer, NOW)
+        bad_offers: tuple[object, ...] = (None, {}, "bad")
+        for value in bad_offers:
+            with self.assertRaises(ValueError):
+                quote_line("1", "each", cast(Offer, value), NOW)
+        for now in (NOW.replace(tzinfo=None), NOW.replace(tzinfo=ZoneInfo("UTC")),
+                    DatetimeSubclass(2026, 1, 1, 12, tzinfo=UTC), None):
+            with self.assertRaises(ValueError):
+                quote_line("1", "each", offer, cast(datetime, now))
+        bad_fields: tuple[object, ...] = ([], True, "bad\n", None)
+        for key in fixture():
+            for value in bad_fields:
+                if value is None and key in ("retailer", "channel", "product_id",
+                                            "seller_id", "variant_id", "store_id",
+                                            "fulfillment", "price_cents"):
+                    continue
+                with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                    quote_line("1", "each", replace(offer, **{key: value}), NOW)
+        for key in ("source_kind", "observed_at", "body_sha256"):
+            with self.assertRaises(ValueError):
+                quote_line("1", "each", replace(offer, observation=replace(
+                    offer.observation, **{key: "bad"},
+                )), NOW)
+        child = OfferChild(**{key: getattr(offer, key) for key in fixture()})
+        with self.assertRaises(ValueError):
+            quote_line("1", "each", child, NOW)
+        observation = ObservationChild("public_web", "2026-01-01T12:00:00Z", "a" * 64)
+        with self.assertRaises(ValueError):
+            quote_line("1", "each", replace(offer, observation=observation), NOW)
+        tampered = replace(offer)
+        object.__setattr__(tampered, "price_cents", -1)
+        with self.assertRaises(ValueError):
+            quote_line("1", "each", tampered, NOW)
+
+        object.__delattr__(tampered, "stock")
+        with self.assertRaises(ValueError):
+            quote_line("1", "each", tampered, NOW)
+
+    def test_quote_invariants(self) -> None:
+        q = quote_line("5", "each", normalized(fixture()), NOW)
+        cases: dict[str, tuple[object, ...]] = {
+            "evidence_status": (None, True, "complete", "blocked"),
+            "reasons": ([], ("label_unqualified", "label_unqualified"), (),
+                        ("label_unqualified", "x"), ("stale", "label_unqualified"),
+                        ("label_unqualified", 1),
+                        ("label_unqualified", "missing_price")),
+            "pack_count": (True, 0, 10001, 1.0, None),
+            "merchandise_total_cents": (True, -1, 10**10 + 1, 1.0, None),
+            "currency": (True, "EUR", None), "all_in_total_cents": (0, True),
+            "approval_allowed": (True, 0, None), "ordering_available": (True, 0, None),
+        }
+        for field, values in cases.items():
+            for value in values:
+                with (self.subTest(field=field, value=value),
+                      self.assertRaises(ValueError)):
+                    replace(q, **{field: value})
+        with self.assertRaises(ValueError):
+            replace(q, evidence_status="blocked", reasons=("label_unqualified",),
+                    merchandise_total_cents=None)
+        self.assertEqual(replace(q, merchandise_total_cents=10**10).
+                         merchandise_total_cents, 10**10)
 
 
 if __name__ == "__main__":
