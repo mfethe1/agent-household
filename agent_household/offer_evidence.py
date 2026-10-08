@@ -7,9 +7,21 @@ from datetime import UTC, datetime, timedelta
 from typing import Final, cast
 
 _FIELDS: Final = {
-    "schema_version", "retailer", "channel", "product_id", "seller_id",
-    "variant_id", "store_id", "fulfillment", "stock", "currency",
-    "pack_quantity", "pack_unit", "price_cents", "observation", "label_status",
+    "schema_version",
+    "retailer",
+    "channel",
+    "product_id",
+    "seller_id",
+    "variant_id",
+    "store_id",
+    "fulfillment",
+    "stock",
+    "currency",
+    "pack_quantity",
+    "pack_unit",
+    "price_cents",
+    "observation",
+    "label_status",
 }
 _OBSERVATION: Final = {"source_kind", "observed_at", "body_sha256"}
 _ENUMS: Final = {
@@ -61,8 +73,7 @@ def _text(value: object) -> str:
     if type(value) is not str:
         raise ValueError("string required")
     if len(value) > 256 or any(
-        ord(c) < 32 or 127 <= ord(c) <= 159 or 55296 <= ord(c) <= 57343
-        for c in value
+        ord(c) < 32 or 127 <= ord(c) <= 159 or 55296 <= ord(c) <= 57343 for c in value
     ):
         raise ValueError("invalid string")
     return value
@@ -182,22 +193,35 @@ def _validate_data(data: dict[str, object], now_utc: datetime) -> Offer:
     if instant > now_utc:
         raise ValueError("future observation")
     return Offer(
-        version, _identity(data["retailer"]),
+        version,
+        _identity(data["retailer"]),
         None if data["channel"] is None else _enum("channel", data["channel"]),
-        _identity(data["product_id"]), _identity(data["seller_id"]),
-        _identity(data["variant_id"]), _identity(data["store_id"]),
-        (None if data["fulfillment"] is None
-         else _enum("fulfillment", data["fulfillment"])),
-        _enum("stock", data["stock"]), "USD", _quantity(data["pack_quantity"]),
-        _enum("pack_unit", data["pack_unit"]), price,
+        _identity(data["product_id"]),
+        _identity(data["seller_id"]),
+        _identity(data["variant_id"]),
+        _identity(data["store_id"]),
+        (
+            None
+            if data["fulfillment"] is None
+            else _enum("fulfillment", data["fulfillment"])
+        ),
+        _enum("stock", data["stock"]),
+        "USD",
+        _quantity(data["pack_quantity"]),
+        _enum("pack_unit", data["pack_unit"]),
+        price,
         Observation(_enum("source_kind", observation["source_kind"]), observed, digest),
         _enum("label_status", data["label_status"]),
     )
 
 
 _REASONS: Final = {
-    "label_unqualified", "missing_price", "missing_identity",
-    "stock_unknown", "stock_unavailable", "stale",
+    "label_unqualified",
+    "missing_price",
+    "missing_identity",
+    "stock_unknown",
+    "stock_unavailable",
+    "stale",
 }
 
 
@@ -216,12 +240,13 @@ class Quote:
 
     def __post_init__(self) -> None:
         if type(self.reasons) is not tuple or any(
-            type(reason) is not str or reason not in _REASONS
-            for reason in self.reasons
+            type(reason) is not str or reason not in _REASONS for reason in self.reasons
         ):
             raise ValueError("invalid reasons")
-        if (tuple(sorted(set(self.reasons))) != self.reasons
-                or "label_unqualified" not in self.reasons):
+        if (
+            tuple(sorted(set(self.reasons))) != self.reasons
+            or "label_unqualified" not in self.reasons
+        ):
             raise ValueError("reasons must be sorted, unique and unqualified")
         status = "needs_review" if len(self.reasons) == 1 else "blocked"
         if _text(self.evidence_status) != status or _text(self.currency) != "USD":
@@ -233,8 +258,11 @@ class Quote:
             raise ValueError("price/reason mismatch")
         if total is not None and (type(total) is not int or not 0 <= total <= 10**10):
             raise ValueError("invalid merchandise total")
-        if (self.all_in_total_cents is not None or self.approval_allowed is not False
-                or self.ordering_available is not False):
+        if (
+            self.all_in_total_cents is not None
+            or self.approval_allowed is not False
+            or self.ordering_available is not False
+        ):
             raise ValueError("quote cannot permit ordering or all-in pricing")
 
 
@@ -244,7 +272,10 @@ def _scaled(text: str) -> int:
 
 
 def quote_line(
-    need_quantity: str, need_unit: str, offer: Offer, now_utc: datetime,
+    need_quantity: str,
+    need_unit: str,
+    offer: Offer,
+    now_utc: datetime,
 ) -> Quote:
     """Revalidate exact dataclasses, compute bounds even on blocked offers."""
     if type(offer) is not Offer:
@@ -276,10 +307,18 @@ def quote_line(
     reasons = {"label_unqualified"}
     if total is None:
         reasons.add("missing_price")
-    if any(value is None for value in (
-        valid.retailer, valid.channel, valid.product_id, valid.seller_id,
-        valid.variant_id, valid.store_id, valid.fulfillment,
-    )):
+    if any(
+        value is None
+        for value in (
+            valid.retailer,
+            valid.channel,
+            valid.product_id,
+            valid.seller_id,
+            valid.variant_id,
+            valid.store_id,
+            valid.fulfillment,
+        )
+    ):
         reasons.add("missing_identity")
     if valid.stock != "available":
         reasons.add("stock_" + valid.stock)
@@ -288,5 +327,11 @@ def quote_line(
         reasons.add("stale")
     return Quote(
         "needs_review" if len(reasons) == 1 else "blocked",
-        tuple(sorted(reasons)), count, total, "USD", None, False, False,
+        tuple(sorted(reasons)),
+        count,
+        total,
+        "USD",
+        None,
+        False,
+        False,
     )
