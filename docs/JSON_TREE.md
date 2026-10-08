@@ -1,0 +1,9 @@
+# Already-decoded JSON tree guard
+
+`is_bounded_json_tree(document: object) -> bool` is a pure opt-in prerequisite, not a decoder or retailer integration. Only exact native dict roots, dict/list containers, str keys and str/int/float/bool/None values are valid. It neither mutates input nor invokes subclass callbacks, retains raw input, logs or emits diagnostics. Aliased containers and cycles reject; repeated scalars and equal distinct containers are allowed.
+
+Root depth is zero; value/item edges add one, maximum 32. Root-inclusive visited values (including containers and scalar occurrences, excluding keys) are limited to 10,000. Aggregate Unicode codepoints in every key/value string are limited to 2,000,000; each contribution is checked before subtraction. Integers satisfy `-10**4096 < n < 10**4096` without input decimal conversion; bool is separate, floats must be finite. Limits are inclusive except integer endpoints. Width checks bound pending traversal allocation; validation is iterative.
+
+Ordinary traversal exceptions fail closed without input/exception stringification. KeyboardInterrupt/SystemExit cancellation is not swallowed. Concurrent mutation is not a consistent snapshot; native concurrent-mutation tests prove only a bool/no escaped ordinary exception, not a particular result or that a race occurred.
+
+Pre-materialization resource allocation, raw-byte bounds, UTF8, duplicate JSON keys, HTML/script provenance, titles, product identity, store availability, price, dietary labels, Offer acceptance, privacy admission and live checkout are NOT established. Synthetic fixtures prove only the guard. The future title consumer (#29) must call it before selection and pass its full separate acceptance matrix; parent parser/transport/private/live tasks remain open. No consumer or package export is added here.
