@@ -312,6 +312,7 @@ class QuoteTests(unittest.TestCase):
             "evidence_status": (None, True, "complete", "blocked"),
             "reasons": ([], ("label_unqualified", "label_unqualified"), (),
                         ("label_unqualified", "x"), ("stale", "label_unqualified"),
+                        ("stale",), ("missing_identity", "stale"),
                         ("label_unqualified", 1),
                         ("label_unqualified", "missing_price")),
             "pack_count": (True, 0, 10001, 1.0, None),
