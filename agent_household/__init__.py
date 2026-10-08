@@ -1,5 +1,5 @@
-"""Offline offer metadata; no live retailer integration or approval."""
+"""Offline evidence arithmetic; no live integration or approval."""
 
-from .offer_evidence import Observation, Offer, normalize_offer
+from .offer_evidence import Observation, Offer, Quote, normalize_offer, quote_line
 
-__all__ = ["Observation", "Offer", "normalize_offer"]
+__all__ = ["Observation", "Offer", "Quote", "normalize_offer", "quote_line"]

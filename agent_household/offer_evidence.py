@@ -3,7 +3,7 @@
 import json
 import re
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Final, cast
 
 _FIELDS: Final = {
@@ -154,9 +154,12 @@ def _decode(payload: str) -> dict[str, object]:
 
 def normalize_offer(payload_json: str, now_utc: datetime) -> Offer:
     """Validate closed JSON; allow stale observations, reject future ones."""
+    return _validate_data(_decode(payload_json), now_utc)
+
+
+def _validate_data(data: dict[str, object], now_utc: datetime) -> Offer:
     if type(now_utc) is not datetime or now_utc.tzinfo is not UTC:
         raise ValueError("exact UTC datetime required")
-    data = _decode(payload_json)
     version = data["schema_version"]
     price = data["price_cents"]
     if type(version) is not int or version != 1:
@@ -189,4 +192,101 @@ def normalize_offer(payload_json: str, now_utc: datetime) -> Offer:
         _enum("pack_unit", data["pack_unit"]), price,
         Observation(_enum("source_kind", observation["source_kind"]), observed, digest),
         _enum("label_status", data["label_status"]),
+    )
+
+
+_REASONS: Final = {
+    "label_unqualified", "missing_price", "missing_identity",
+    "stock_unknown", "stock_unavailable", "stale",
+}
+
+
+@dataclass(frozen=True)
+class Quote:
+    """Merchandise arithmetic only; never approval or all-in pricing."""
+
+    evidence_status: str
+    reasons: tuple[str, ...]
+    pack_count: int
+    merchandise_total_cents: int | None
+    currency: str
+    all_in_total_cents: None
+    approval_allowed: bool
+    ordering_available: bool
+
+    def __post_init__(self) -> None:
+        if type(self.reasons) is not tuple or any(
+            type(reason) is not str or reason not in _REASONS
+            for reason in self.reasons
+        ):
+            raise ValueError("invalid reasons")
+        if (tuple(sorted(set(self.reasons))) != self.reasons
+                or "label_unqualified" not in self.reasons):
+            raise ValueError("reasons must be sorted, unique and unqualified")
+        status = "needs_review" if len(self.reasons) == 1 else "blocked"
+        if _text(self.evidence_status) != status or _text(self.currency) != "USD":
+            raise ValueError("invalid quote status or currency")
+        if type(self.pack_count) is not int or not 1 <= self.pack_count <= 10000:
+            raise ValueError("invalid pack count")
+        total = self.merchandise_total_cents
+        if (total is None) != ("missing_price" in self.reasons):
+            raise ValueError("price/reason mismatch")
+        if total is not None and (type(total) is not int or not 0 <= total <= 10**10):
+            raise ValueError("invalid merchandise total")
+        if (self.all_in_total_cents is not None or self.approval_allowed is not False
+                or self.ordering_available is not False):
+            raise ValueError("quote cannot permit ordering or all-in pricing")
+
+
+def _scaled(text: str) -> int:
+    whole, _, fraction = text.partition(".")
+    return int(whole) * 1_000_000 + int(fraction.ljust(6, "0"))
+
+
+def quote_line(
+    need_quantity: str, need_unit: str, offer: Offer, now_utc: datetime,
+) -> Quote:
+    """Revalidate exact dataclasses, compute bounds even on blocked offers."""
+    if type(offer) is not Offer:
+        raise ValueError("exact Offer required")
+    try:
+        observation: object = object.__getattribute__(offer, "observation")
+        if type(observation) is not Observation:
+            raise ValueError("exact Observation required")
+        data: dict[str, object] = {
+            key: object.__getattribute__(offer, key) for key in _FIELDS
+        }
+        data["observation"] = {
+            key: object.__getattribute__(observation, key) for key in _OBSERVATION
+        }
+    except AttributeError as exc:
+        raise ValueError("missing dataclass field") from exc
+    valid = _validate_data(data, now_utc)
+    need = _scaled(_quantity(need_quantity))
+    unit = _enum("pack_unit", need_unit)
+    if unit != valid.pack_unit:
+        raise ValueError("unit conversion is not supported")
+    pack = _scaled(valid.pack_quantity)
+    count = (need + pack - 1) // pack
+    if count > 10000:
+        raise ValueError("pack count exceeds bound")
+    total = None if valid.price_cents is None else count * valid.price_cents
+    if total is not None and total > 10**10:
+        raise ValueError("merchandise total exceeds bound")
+    reasons = {"label_unqualified"}
+    if total is None:
+        reasons.add("missing_price")
+    if any(value is None for value in (
+        valid.retailer, valid.channel, valid.product_id, valid.seller_id,
+        valid.variant_id, valid.store_id, valid.fulfillment,
+    )):
+        reasons.add("missing_identity")
+    if valid.stock != "available":
+        reasons.add("stock_" + valid.stock)
+    instant = datetime.fromisoformat(valid.observation.observed_at[:-1] + "+00:00")
+    if now_utc - instant > timedelta(minutes=15):
+        reasons.add("stale")
+    return Quote(
+        "needs_review" if len(reasons) == 1 else "blocked",
+        tuple(sorted(reasons)), count, total, "USD", None, False, False,
     )
