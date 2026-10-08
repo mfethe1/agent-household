@@ -6,6 +6,7 @@ from dataclasses import FrozenInstanceError
 from datetime import UTC, datetime, timedelta, timezone
 from decimal import localcontext
 from typing import cast
+from zoneinfo import ZoneInfo
 
 from agent_household import Offer, normalize_offer
 
@@ -26,6 +27,10 @@ def fixture() -> dict[str, object]:
 
 def normalized(data: dict[str, object]) -> Offer:
     return normalize_offer(json.dumps(data), NOW)
+
+
+class DatetimeSubclass(datetime):
+    """Exercise exact datetime type validation."""
 
 
 class SchemaTests(unittest.TestCase):
@@ -70,7 +75,7 @@ class SchemaTests(unittest.TestCase):
         for key in fixture():
             if key in ("schema_version", "price_cents", "observation"):
                 continue
-            for value in ("", "a" * 257, "x\n", "\u0080", "\ud800"):
+            for value in ("", "a" * 257, "x\n", "\u007f", "\u0080", "\ud800"):
                 data = fixture()
                 data[key] = value
                 with self.subTest(key=key, value=value), self.assertRaises(ValueError):
@@ -130,7 +135,7 @@ class SchemaTests(unittest.TestCase):
             self.assertEqual(normalized(data).observation.source_kind, source)
         data = fixture()
         observation = cast(dict[str, object], data["observation"])
-        observation["observed_at"] = "2025-01-01T12:00:00Z"
+        observation["observed_at"] = "2025-01-01T12:00:00.000001Z"
         self.assertIsNotNone(normalized(data))
         cast(dict[str, object], data["observation"])["extra"] = "x"
         with self.assertRaises(ValueError):
@@ -141,7 +146,11 @@ class SchemaTests(unittest.TestCase):
         duplicate = payload.replace(
             '"schema_version": 1', '"schema_version": 1, "schema_version": 1'
         )
-        for bad in (duplicate,
+        nested_duplicate = payload.replace(
+            '"source_kind": "synthetic_fixture"',
+            '"source_kind": "synthetic_fixture", "source_kind": "public_web"'
+        )
+        for bad in (duplicate, nested_duplicate,
                     '{"x":' * 5 + '0' + '}' * 5, "[]", "null", "1", '"text"',
                     payload.replace("199", "NaN"), payload.replace("199", "Infinity"),
                     payload + "!", "{", " " * 8193, "\ud800"):
@@ -161,6 +170,8 @@ class SchemaTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 normalize_offer(cast(str, bad), NOW)
         for now in (None, "x", NOW.replace(tzinfo=None),
+                    NOW.replace(tzinfo=ZoneInfo("UTC")),
+                    DatetimeSubclass(2026, 1, 1, 12, tzinfo=UTC),
                     NOW.replace(tzinfo=timezone(timedelta(hours=1)))):
             with self.assertRaises(ValueError):
                 normalize_offer(json.dumps(fixture()), cast(datetime, now))
