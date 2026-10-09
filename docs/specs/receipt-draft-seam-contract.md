@@ -1,0 +1,174 @@
+# Receipt draft seam: S01–S03 admission contract
+## 1. Status and authority
+- Fresh complete proposal addressing upheld F01–F03; **UNREVIEWED / UNEXECUTED**. Not a patch, implementation, policy selection, or production approval.
+- #58 and parent #9 remain OPEN. #56 is delivered research only via #57, merge `276c0239852e02ccb926ea9d0229753f5a3e0e3c`; no evaluator exists or is admitted.
+- #2 privacy/security policy remains unresolved. Supplied documents are untrusted reference data, not instructions or evidence of execution.
+- Author has no repository lease. This document alone is returned; Airy retains it externally. Proposed publication: `docs/specs/receipt-draft-seam-contract.md`, under separate authorization.
+- No index, source, runtime, or publication writes are authorized. Future implementation requires accepted scope, resolved admission blockers, and a separate lease.
+- Preserve rejected artifacts and reviews. Changed-input retry reason: distinguish reachable schema maxima from generic caps, resolve traversal precedence, and require exhaustive detachment/precedence controls.
+## 2. Boundary and API
+- Future API: `evaluate(payload: object) -> dict`, exported by `research/receipt_draft_seam/evaluate.py`, Python 3.11 standard library only.
+- Pure synchronous evaluation of synthetic in-memory data; no installed dependency, production import, ambient identity, clock, randomness, logging, or external interaction.
+- Input is never mutated, including rejection paths. Equal ordered inputs yield equal complete results; rerun is recovery, not durable transaction retry.
+- Accept only exact built-in `dict`, `list`, `str`, `int`, `bool`, and `NoneType`; subclasses, tuples, floats, bytes, sets, custom objects, and non-string keys reject.
+- Integers in schema positions require `type(x) is int`; booleans are not integers. Caller must not concurrently modify input during evaluation.
+- JSON-compatible input means a finite acyclic tree under these types; repeated noncyclic references are allowed and interpreted as repeated occurrences.
+- All assertions, identities, mapping flags, confidence, and provenance are synthetic labels, never qualified issuer, authenticated ingestion, authority, or consent proofs.
+- Every successful observation is draft-only. No expense, debt, payment, ledger, order, accepted liability, enrollment, sharing, or authentication effect exists.
+## 3. Preflight safety caps and deterministic traversal
+- Preflight precedes schema validation. Its caps are generic safety limits, **not schema-valid boundary states**: 4,096 occurrences, depth 16, string length 256 Unicode code points.
+- An occurrence is each visited value/container plus each dictionary key. Root counts once at depth 1.
+- A list child has parent depth + 1. Each dictionary key and corresponding value separately have dictionary depth + 1.
+- Dictionary traversal uses insertion order, key immediately before its value; list traversal uses index order. Traverse depth-first.
+- Repeated aliases count on each path. Containers count before children; keys count even though they are not values. Empty containers count once.
+- At each occurrence, perform exactly: increment count/check `>4096`; check depth `>16`; check exact allowed type and, for a key, exact `str`; check active-path container cycle; check string length `>256`; then descend.
+- Count/depth/string failures return `LIMIT`; forbidden type/key or cycle returns `SCHEMA`. Stop at the first failure; do not inspect later siblings.
+- Thus a depth-17 active-path cycle returns `LIMIT`; an unsupported occurrence numbered 4,097 returns `LIMIT`; an unsupported occurrence within both caps returns `SCHEMA`.
+- Active-path membership uses container identity only; remove membership on return. A noncyclic shared container is not a cycle.
+- This order governs simultaneous violations at one occurrence and competing failures on different paths. No sorting or coercion occurs.
+- No generic integer magnitude or container-cardinality preflight cap exists; subsequent schema bounds apply. Preflight must be bounded and avoid recursive overflow.
+## 4. Schema notation and primitives
+- Every object below has exactly its listed keys; every key is mandatory. Missing/extra keys reject `SCHEMA`, including purported commands or policy/proof fields.
+- `?X` means X or JSON `null`, the sole unknown encoding. Empty string, `"UNKNOWN"`, omitted keys, zero, and false are not unknown substitutes.
+- `ID`: ASCII full match `synthetic:[A-Za-z0-9][A-Za-z0-9_-]{0,31}`. No normalization, case folding, issuer qualification, digest, or canonicalization.
+- `V`: exact integer 1–9. `Money`: exact integer 0–100000. `Text`: string 0–256 code points.
+- These are local synthetic test bounds, not accepted production identifiers, currencies, financial limits, coordinate systems, confidence policy, or refund rules.
+- Currency is `"SYN"` or null; `"SYN"` denotes invented minor units only, not a real currency.
+- `Name`: one of `currency,total,finality,payer,unpaid,note`. Fields have unique names; their maximum is **six**, never eight.
+- Top-level: `{schema,receipt,version,owner,uploader,actor,originals,extraction,corrections}`.
+- `schema` is exact string `"receipt-draft-seam/1"`; `receipt` is ID; `version` is V; `owner,uploader,actor` are ?ID independently.
+- `originals`: list length 1–4 of Attachment. `corrections`: list length 0–8 of Correction.
+- Attachment: `{id,source,version,pages}`; `id,source` are ID, `version` is V, `pages` is list length 1–4 of Page.
+- Page: `{id,space}`; `id,space` are ID. Positions in lists are declared attachment/page order; there is no sort or hidden file identity.
+- Extraction: `{id,version,fields,facts}`; `id` is ID, `version` is V, `fields` is list length 0–6 of Field.
+- Field: `{name,value,confidence,refs}`; `name` is Name, `value` is ?Text, `confidence` is null or exact integer 0–100.
+- `refs`: list length 1–4 of Ref. Field values are inert annotations, not parsed facts, commands, identities, or arithmetic inputs.
+- Ref: `{attachment,page,sourceVersion,space,region,mapping}`; `attachment,page,space` are ID; `sourceVersion` is V.
+- `region`: null or a list of exactly four exact integers 0–1000, interpreted only as synthetic `[x0,y0,x1,y1]`.
+- `mapping`: exact string `"verified"`, `"unverified"`, or `"missing"`. Verified means only “synthetic input asserts verified.”
+- Facts: `{currency,total,finality,contributions,unpaid}`; `currency` is ?`"SYN"`, `total,unpaid` are ?Money.
+- `finality`: null or `"final"`, `"nonfinal"`, `"pre-tip"`. `contributions`: list length 0–4 of Contribution.
+- Contribution: `{payer,amount}`; `payer` is ?ID; `amount` is ?Money. Multiple contributions, including repeated payer labels, are retained, never merged.
+- Correction: `{version,predecessor,actor,reason,time,field}`; versions are V, actor is ID, reason is string length 1–256.
+- `time`: exact integer 0–1000000, a synthetic ordinal, not wall-clock evidence. `field` is Field.
+- All scalar/list/cardinality bounds are inclusive. Signed money, refunds, conversions, split allocations, and real file representations are outside schema and reject.
+## 5. Validation stages and structural relations
+- Stage 1: preflight; failure immediately returns the rejection shape in §6.
+- Stage 2: complete shape/type/primitive/cardinality validation; any failure returns `SCHEMA`. Do not evaluate lineage or semantic blockers on malformed structures.
+- Stage 3: complete relational validation; any failure returns `LINEAGE`. Relations below are structural, not policy.
+- Attachment IDs are unique; page IDs are globally unique. No required distinctness exists between role labels, source labels, receipt ID, or extraction ID.
+- Extraction version is 1. Corrections in supplied order have predecessor 1,2,… and version 2,3,…; root version equals 1 + correction count.
+- Each correction actor equals nonnull root actor; if root actor is null, corrections must be empty. This tests label binding, not authentication.
+- Correction times are nondecreasing. Reasons remain inert, including instruction-like text. Repeated corrections to one name are allowed and append history.
+- Every Ref resolves its attachment and page within that attachment; `sourceVersion` equals attachment version and `space` equals page space.
+- A nonnull region must satisfy `x0 ≤ x1` and `y0 ≤ y1`. Missing/unverified mapping does not permit broken structural references.
+- No inferred transform, mapped coordinates, page renumbering, source-version repair, or correction of original evidence occurs.
+- Stage 4: collect all semantic blockers from the entire retained extraction and every correction, not just effective fields.
+- Stage 5: build detached draft and result. A later stage never replaces an earlier-stage rejection.
+- Shape faults have the same outward reason regardless of their location; stage-3 faults likewise. Only preflight path order can change `LIMIT` versus `SCHEMA`.
+## 6. Results and semantics
+- Exact result keys: `{status,reasons,draft,effects}`. `effects` is always a newly allocated empty list.
+- Rejection: `status:"rejected"`, `reasons:["LIMIT"]`, `["SCHEMA"]`, or `["LINEAGE"]`, `draft:null`, `effects:[]`.
+- Structurally valid input returns `"draft-only"` with empty reasons or `"blocked"` with all applicable reasons, each once, in the order below.
+- Vocabulary/order: `ROLE_UNKNOWN, MAPPING_MISSING, MAPPING_UNVERIFIED, CONFIDENCE_UNKNOWN, CONFIDENCE_LOW, CURRENCY_UNKNOWN, TOTAL_UNKNOWN, NONFINAL, PAYER_UNKNOWN, CONTRIBUTION_UNKNOWN, UNPAID_UNKNOWN, TOTAL_MISMATCH`.
+- `ROLE_UNKNOWN`: any owner/uploader/actor is null. No substitution among roles is permitted; equal known labels are also allowed.
+- `MAPPING_MISSING`: any Ref mapping is missing **or** region is null. `MAPPING_UNVERIFIED`: any Ref mapping is unverified.
+- `CONFIDENCE_UNKNOWN`: any retained Field confidence is null. `CONFIDENCE_LOW`: any retained Field confidence is below 90.
+- `CURRENCY_UNKNOWN`, `TOTAL_UNKNOWN`: corresponding fact is null. `NONFINAL`: finality is null, nonfinal, or pre-tip.
+- `PAYER_UNKNOWN`: any contribution payer is null. `CONTRIBUTION_UNKNOWN`: any contribution amount is null.
+- `UNPAID_UNKNOWN`: unpaid is null. A missing unpaid key instead rejects schema; neither case means paid.
+- `TOTAL_MISMATCH`: when total, unpaid, and every contribution amount are known, any contribution or unpaid exceeds total, or `sum(amounts)+unpaid != total`.
+- Use exact integer arithmetic without rounding, clamping, floating conversion, currency conversion, or inference; arithmetic alone grants no accounting authority.
+- Empty contributions are valid with explicit unpaid equal to total; zero total is valid with zero unpaid and zero or empty contributions.
+- Unknown payer with known amount stays unknown even when arithmetic balances; no payer defaults to owner, uploader, or actor.
+- Draft exact keys: `{receipt,version,owner,uploader,actor,originals,extraction,corrections,effectiveFields,facts}`.
+- First eight draft keys reproduce corresponding input values; `facts` independently reproduces `extraction.facts`.
+- `effectiveFields`: for each Name having a field, use its last correction if any, otherwise extraction field; list in Name order from §4; absent names are omitted.
+- Corrections modify annotations only; they never overwrite typed facts, historical fields, extraction, originals, or blockers from retained uncertain evidence.
+- All output mutable containers are detached from input, each other, and every other result, including duplicate representations and aliases in the input.
+- Scalar identity sharing is harmless; no mutable dict/list sharing is permitted even within one result. Blocked drafts retain unknowns and provenance, without fabricated authority.
+## 7. Evidence classes and fixture format
+- Future fixture path: `tests/fixtures/receipt_draft_seam/cases.json`; root `{schema,cases}` with schema `"receipt-draft-seam-cases/1"`.
+- Each case has exactly `{id,dimension,input,expected}`; id is unique Text, dimension is one of `S01,S02,S03,structure,limits,precedence,injection`.
+- `expected` is the complete hand-authored result, not generated by evaluator code or a copied implementation oracle.
+- Every case is invoked by the real evaluator and checked for complete equality, exact reason order, exact keys, preserved order/nulls, and empty effects.
+- Python-only cycles, aliases, forbidden types, and detachment experiments are supplemental tests constructed from deep-copied committed controls; document exact transformations and expectations.
+- All case families below require named fixture/test IDs and documentation mapping to evaluator branch, expected observation, and deliberate implementation mutation target.
+- Do not treat parent maximum-cardinality analysis as evaluator evidence. Its reported 877 value occurrences, 1435 including keys, depth 8 concern the rejected schema only.
+- Independently calculate this schema’s reachable maxima on paper before admission; archive the counting convention and construction. Do not import old counts as this schema’s maxima.
+## 8. Required schema-valid positive controls
+- Base positive: two ordered attachments with two pages each, all four roles distinct, verified regions, confidence 90, final SYN total 100, attributed amount 70, unpaid 30.
+- Expect `draft-only`, no reasons, exact original order/provenance, unchanged facts, no effects. Include a correction from version 1 to 2 with preserved original field and last-wins effective annotation.
+- Positive cardinality controls: 1/4 attachments, 1/4 pages, 0/6 uniquely named fields, 1/4 refs, 0/8 corrections, and 0/4 contributions, maintaining all relations and balanced facts.
+- Include one valid joint maximum-cardinality construction; expected output is authored independently and executed, not inferred from paper count.
+- Positive scalar controls: V 1/9 where applicable; root 9 with eight corrections; confidence 0/89 blocked and 90/100 draft-only; null and nonnull annotations.
+- Include ID length 11/42, Text length 0/256, reason length 1/256, time 0/1000000, region coordinates 0/1000, and Money 0/100000.
+- Use valid matching reference spaces/versions and balanced contributions at money maxima. Zero, empty contribution, explicitly wholly unpaid, and repeated known payer controls must pass draft-only.
+- Equal known role labels and separately distinct labels both pass; all-null roles without corrections is valid-but-blocked, never rejection or inferred identity.
+- These controls are evaluator-valid states. No claim requires schema-valid depth 16 or occurrence 4096.
+## 9. Causal preflight-cap controls
+- Generic-cap controls may be schema-invalid; their positive observation is “passes preflight, then rejects SCHEMA,” **not** evaluator-valid success.
+- Occurrence control: root list containing 4,095 nulls has 4,096 occurrences, depth 2, no strings; append one null to that same object to obtain first failure at occurrence 4,097, `LIMIT`.
+- Depth control: fifteen nested lists around null gives root-to-null depth 16, sixteen occurrences, no strings; wrap that same object once to exceed depth only, `LIMIT`.
+- String control: root string of 256 ASCII characters passes preflight then rejects SCHEMA; append one character to that same string to exceed only string cap, `LIMIT`.
+- Before/after tests must record counts, depth, maximum string length, and confirm other caps remain satisfied; demonstrate preflight passage with a test-only call trace, not an exported production API.
+- Also test key strings at 256/257 and multicode-point/non-ASCII strings to distinguish code points from encoded byte length.
+- Deliberate targets: `>=` instead of `>`, missing key counts, unique-object rather than occurrence counts, off-by-one root depth, byte-based string length.
+## 10. Adversarial and precedence inventory
+- Structure: independently remove/add a key at every object kind; malformed nested object/list/scalar; forbidden subclasses/types; non-string keys; boolean at every integer kind.
+- Test every schema cardinality one below/above where meaningful, seven distinct field entries, duplicate field names, invalid enum/version/ID, negative/out-of-bound money, reversed/out-of-range regions.
+- S01: duplicate attachment/page IDs; wrong attachment/page/space/sourceVersion; wrong extraction/root/correction version, predecessor, actor, time order; out-of-order pages retained, not sorted.
+- Independently set mapping missing/unverified and region null; expect their exact blockers. Correction provenance survives; annotation changes never repair historical uncertainty or typed facts.
+- S02: independently vary each confidence, currency, total, finality, payer, amount, unpaid unknown; nonfinal/pre-tip; mismatch, overpayment, unequal sum; fully balanced unknown-payer case remains blocked.
+- Combine all achievable semantic blockers and assert ordered, deduplicated reasons. Missing facts reject schema; null facts block. Unsupported currency/refund/netting rejects schema.
+- S03: independently null each role and payer; distinct role values retained; correction with null/mismatched actor rejects lineage. Never default any label.
+- Injection: instruction text/URLs in annotation values and correction reasons remain unchanged inert data; put instruction-like extra keys outside schema and reject.
+- Stage controls: schema fault plus lineage fault → SCHEMA; lineage fault plus semantic blockers → LINEAGE; preflight cap violation plus earlier-encountered schema-shape fault → LIMIT.
+- Competing paths: root dict with earlier 257-character value and later unsupported object → LIMIT; reverse insertion order → SCHEMA; repeat with list sibling order.
+- At one occurrence: depth-17 active-ancestor cycle → LIMIT; shallow cycle → SCHEMA; occurrence-4097 unsupported object → LIMIT; same object at 4096 → SCHEMA.
+- At one occurrence: overlong non-string forbidden object → SCHEMA without coercion; depth-17 overlong string → LIMIT via depth before length.
+- Use test-only tracing/mutation tests to distinguish same-reason checks where complete results alone cannot establish their order; no public trace or payload disclosure.
+- Deliberate targets: reorder stages/checks, sort dictionaries/pages, omit old correction blockers, accept bool integers, coerce null/unknown to zero/false, infer payer, treat instructions as authority, return nonempty effects.
+## 11. Independent detachment and mutation controls
+- Before and after every call, compare input with an independently saved deep copy; on Python-only cyclic inputs use finite identity/edge snapshots. Repeat rejected, blocked, and draft-only calls.
+- For each following target use a fresh base control, mutate only that returned branch, then verify input, untouched sibling representations, another prior result, and a fresh rerun remain equal to their saved expectations.
+- Targets: `originals` list; each attachment dict; its `pages` list; each Page dict.
+- Targets: `extraction` dict; its `fields` list; each Field dict; its `refs` list; each Ref dict; each nonnull `region` list.
+- Targets: `corrections` list; each Correction dict; each nested Field, refs list, Ref dict, and region list.
+- Targets: `effectiveFields` list and independently every nested Field/refs/Ref/region; prove detachment from matching extraction/correction historical field.
+- Targets: `extraction.facts` and draft `facts` independently; each contributions list and each Contribution dict; neither representation may mutate the other.
+- Targets: result dict, draft dict, `reasons`, `effects`, and all result lists across calls; append sentinels to empty lists too.
+- For rejected results test result dict/reasons/effects independently; for blocked results exercise nonempty reasons; for draft-only exercise empty reasons.
+- Walk both results and input collecting all dict/list identities; assert pairwise disjointness and no duplicate mutable identity within either result.
+- Supply a noncyclic aliased input container on multiple valid paths; output occurrences must detach independently. Mutate input after evaluation and prove existing results unchanged.
+- Deliberate targets: return input branches, shallow-copy any listed container, reuse effective/history fields, alias facts, share singleton empty lists, cache and return one mutable result.
+## 12. Consumer, acceptance gates, and mapping
+- Real consumer is committed offline test/evaluation harness, not a production caller. Tests bind `evaluate` from the actual allowlisted module and assert callable identity, resolved module path, and observed invocation.
+- Use test wrapping/call counts to prove every committed fixture reaches that evaluator; do not substitute expected fixtures, a copied oracle, mock evaluator, or disconnected demonstration.
+- Changed-input negative control: copy base positive, change unpaid 30 to 31, call the same binding; expect blocked solely by TOTAL_MISMATCH and unchanged original positive result.
+- Fixture loader rejects duplicate IDs/keys and malformed fixture envelopes; no private data. Test JSON duplicate-key detection before constructing fixture dictionaries.
+- Exact future command: `python3.11 -m unittest discover -s tests -p 'test_receipt_draft_seam.py'`; it must execute committed fixtures and all supplemental controls.
+- All strict existing repository gates remain mandatory. Their exact command inventory/baseline is not supplied: Airy must record it before implementation admission; no guessed substitute or relaxation.
+- Complete formatted implementation/fixtures/tests/docs diff must be ≤399 canonical additions plus deletions; include all four files and generated formatting changes.
+- If complete coverage cannot fit, reject implementation admission with measured paper evidence; do not trim tests, conceal changed lines, or defer coverage.
+- Require independent execution review on exact commit/diff, command outputs, fixture/call existence, mutation kill evidence, and cleanup; then parent fresh gates/readback.
+- S01 → A09, R07-01, U07-01/08 synthetic lineage/order handoff only. S02 → A10, R07-03/07, U07-04/08 synthetic uncertainty/arithmetic only.
+- S03 → A09, U07-01 and R07-01 identity/provenance separation only; unknown-payer observations also reference R07-03/07, not full A14 acceptance.
+- S04–S09, A11, A18–A22, all complete R07/U07 scenarios, atomic recovery, authorization, suppression, safety, restore, accessibility, and future #9 integration remain pending and unaccepted.
+## 13. Exact follow-on implementation issue template
+- **Title:** Implement admitted offline receipt-draft seam S01–S03; no production integration.
+- **Dependencies:** exact accepted/published #58 contract and independent review; separate lease; fixed baseline; recorded strict gate commands; measured ≤399 feasibility. #2/#9 stay open; real-policy work is excluded.
+- **Allowed paths only:** `research/receipt_draft_seam/evaluate.py`; `tests/fixtures/receipt_draft_seam/cases.json`; `tests/test_receipt_draft_seam.py`; `docs/research/receipt-draft-seam-evaluation.md`.
+- **Final state:** pure exact API/schema/results; complete fixtures and supplemental controls; actual harness calls; all §8–11 targets mapped and mutation-tested; evaluation document records commands/results/commit and limits.
+- **Commands:** Python 3.11 discovery command in §12 plus the independently recorded exact full strict repository gate inventory; formatted complete diff/count checks; no installs or network.
+- **Negative tests:** every §9–11 control, changed-input unpaid control, binding/call assertions, input/output/inter-result alias assertions, forbidden effects, stage/traversal precedence, and deliberate implementation-mutation kills.
+- **Cleanup:** revert every deliberate implementation mutation before gates; remove temporary artifacts without touching unrelated work; no fixture regeneration from evaluator, real data, credentials, or persistent state.
+- **Integration:** committed offline harness is the sole consumer; prove actual binding/calls. Production callers, adapters, future #9 integration, policy qualification, and parent acceptance are expressly unaccepted.
+- **Review/closure:** independent exact-diff execution review and parent fresh gates/readback; issue remains open on any missing evidence, failed gate, size failure, or unresolved admission dependency.
+## 14. Exclusions and closure
+- No persistence, digests, issuers, fencing, financial accounting, HTTP, OCR/providers, uploads, upstream code/assets, real file processing, household data, credentials, installs, network, retailer/cart/checkout actions, or deployment.
+- Harness may read committed synthetic fixture JSON only; evaluator performs no file I/O, image decoding, coordinate transform, policy discovery, or external processing.
+- No policy for consent, roles, sharing, retention, deletion, financial bounds, accepted currencies, canonicalization, qualified mappings, or authority is selected.
+- Airy coordinates custody and verification. Independent adversarial scope review must inspect complete governing inputs and this entire replacement; preserve original versions and reasons before any retry.
+- #59 closes only after independent resolution of F01–F03. #58 remains open until accepted contract publication, applicable reviews/gates, exact artifact custody, and readback.
+- No automatic implementation, publication, security approval, acceptance-item pass, or parent closure follows. **#9 and #2 remain OPEN.**
