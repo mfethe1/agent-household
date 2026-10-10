@@ -3,6 +3,37 @@
 ## Mission
 Build an open-source, agent-native household shopping and shared-expense system. Help users plan and prepare Costco, Amazon and Target purchases, retain grocery and restaurant receipts, and allocate costs accurately among consenting participants. Save users effort without surrendering control of purchases, sensitive data or shared debts.
 
+## Governing continuation contract
+Continue the existing program under Airy, session `20261006_082642_52e76a4d`, with
+the existing 200-turn budget, owners, queue and accepted PR93/91 foundation preserved.
+The protected checkout stays read-only. Michael's authored inline acceptance contract
+replaces the unreadable source-file dependency, not the goal or authorization boundaries.
+Its sanitized requirements and six finite completion gates are recorded in
+`docs/specs/agent-native-product-contract.md` and `docs/ACCEPTANCE.md`.
+
+Prioritize scoped history + user-controlled preferences + confirmed stock/needs →
+explainable cart → corrections/feedback → exact human approval → supported retailer
+handoff/order/status → reconciled receipt → reviewed split → participant consent/dispute →
+explainable balances/settlement records → improved next cart. Learning must persist and
+change the next proposal; the current preview/history analysis is only foundation.
+Help families meet user-chosen healthier-eating goals and remaining all-in budgets through
+weekly meals, portions, overlapping ingredients, pantry/freezer checks, leftovers and waste
+reduction, or explicitly report infeasibility. No medical prescriptions or benefit claims.
+
+Michael's agents/harnesses use provider-independent documented APIs/MCP tools; ChatGPT
+and Claude are not required gateways. Model choice cannot change identity, approval,
+validation, budget, idempotency, audit, undo or reconciliation rules. Genuine order APIs,
+cart/shoppable links, manual handoffs and unavailable access are distinct capabilities.
+New Instacart applications are BLOCKED absent independently verified existing approved
+access; no MVP dependency, signup, outreach or bypass. No delivery network/payment processor.
+The existing single pickup-first fulfillment research/proposal lane remains parallel and
+bounded, not a dependency for independently admitted receipt/expense/domain work.
+
+This continuation grants no deployment, purchases/subscriptions/payments/transfers,
+calendar writes, invitations/enrollment/contact, credential setup/transfer, permission or
+private-access expansion, paid inference or unrelated changes. Separately granted pickup/
+calendar authorities remain scoped to their originating session. No install-lock bypass.
+
 This is an outcome contract, not a claim that integrations already work. Begin by reading README.md, docs/TRANSACTION_MODEL.md, docs/ACCEPTANCE.md and BACKLOG.md. Work in small, independently verifiable slices. Reuse qualified components instead of recreating meal planning, identity or accounting unnecessarily; inspect licenses before reuse.
 
 ## Required scope

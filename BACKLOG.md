@@ -65,3 +65,33 @@ agent authority, dependencies, one owner and independent verification. Local con
 publication is not product acceptance. Unresolved transport gates stay open, but do not
 prevent admitted isolated visual/domain work. No purchase, enrollment, credential,
 deployment or payment authority is granted by this queue.
+
+## Inline-contract reconciliation and deduplicated priorities
+
+All six completion gates in docs/ACCEPTANCE.md remain OPEN. Airy owns reconciliation and
+acceptance; existing implementation owners/leases remain unchanged. This is the existing
+PR95 four-document lane, not a new implementation lease, worker or duplicate issue.
+
+| Priority / existing work | Current obligation and admission boundary |
+|---|---|
+| P0: #1/#2, PR95 | Reconcile full contract and requirement inventory; independent exact-head review and full gates before integration. Specification publication closes no product ticket. |
+| P1: #4/#6 and AN-ACTION | Persistent evidence/stock/preferences/feedback and weekly meal/all-in budget contracts; two-cycle changes, inspect/correct/forget/override, no inferred authority. Map existing tickets before admitting one bounded isolated slice. |
+| P1: #9/#10/#61/#62/#80–82 | Independent synthetic receipt/expense/consent work; exact minor units, duplicates/refunds/disputes and attributable balances. No retailer access dependency by default. |
+| P1: #63/#64 | Reuse mobile specification/recovery work; native iOS/Android final target plus desktop/tools parity. PWA/preview is interim, physical devices remain unqualified. Preserve bounded authoring and full source coverage. |
+| P1: #76/#87/#88 | Keep original authority/custody/cessation gates OPEN; no backend admission from paper/synthetic transport checks. Progress other admitted lanes without waiving security. |
+| Retained: #75 CLOSED | Reuse accepted narrow lossless-time/replay contract evidence; do not reopen or duplicate. Authentication/durable runtime and remaining composite gates are still open. |
+| P2: #3/#8/#11/#66, AN-LIVE | Costco/Amazon/Target per-operation/channel/geography and provenance continuity; genuine APIs versus links/manual/unavailable. New Instacart BLOCKED without verified existing approval; not an MVP dependency. |
+| P1: AN-QUALIFY / R1–R3 | Six exact-build gates, physical-device recovery, tool/harness parity, adversarial inventory, restore and representative measured outcomes; no inferred pass from accepted CI/preview. |
+
+Keep exactly one existing Airy-owned fulfillment groundwork lane: pickup-first research and
+one proposal, conditional staged courier/Shop&Deliver/Pick&Pack diligence. Indianapolis is
+research, not launch. DoorDash Drive restricted, Uber Direct unqualified lead; merchant,
+catalog/inventory/refund/courier/cold-chain access and prototype acceptance remain OPEN.
+No outreach, accounts/credentials, spending, real orders, deployments or permission expansion.
+This lane is parallel, not a new network/payment processor or core delivery dependency.
+
+Named blockers retained: retailer/account-source access, physical iPhone/Android, runtime
+security/admission, consent and separately authorized live consequential tests. Each owner
+records its unblock evidence; unavailable capability stays explicit. No new task ownership
+is inferred from an empty GitHub assignee field. Reuse live task bodies and reconcile stale
+baseline wording without erasing original obligations or indiscriminately reopening closures.

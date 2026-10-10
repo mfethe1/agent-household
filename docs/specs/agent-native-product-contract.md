@@ -63,3 +63,58 @@ owner, verification command/artifact and negative recovery cases. Parent indepen
 verifies, files bugs, cleans/hardens and integrates; repeat build/verify/clean/harden/integrate.
 Local tests, hosted exact-head CI, device, live retailer and product outcome claims are distinct.
 No enrollment, purchases, payment transfers, private data or deployment is authorized here.
+
+## Persistent learning, stock and weekly meals (required; unimplemented)
+
+- Persist scoped history, preferences and feedback with provenance, confidence, freshness
+  and revocable user control. Distinguish explicit preferences, inferred candidates and
+  one-time corrections; users can inspect, correct, forget and override learning.
+- Purchase history suggests replenishment, never consumption/depletion or order authority.
+  Check pantry/freezer stock, pack sizes, attendance and uncertainty. Explain every proposed
+  item, quantity, retailer and substitution from evidence and freshness. Absent/stale history
+  is explicit, not fabricated. Forget/revocation prevents reuse and cross-household leakage.
+- Authorized hard allergy/diet constraints outrank learned preferences; unresolved ingredient
+  evidence blocks safety claims. Inference cannot authorize purchases, relax constraints,
+  raise budgets or expand private access. Untrusted product/receipt text grants no authority.
+- Weekly meals account for ingredients/portions, attendance, preferences, overlapping
+  ingredients, replenishment, stock, leftovers and waste reduction. Healthier-eating criteria
+  are user-chosen; no prescribed medical diets or claimed medical benefits.
+- Remaining all-in budget includes merchandise, tax, delivery/pickup fees, tips, applicable
+  membership costs across retailers and reconciled spending. Expose incomplete coverage,
+  estimates and unknowns; unknown cost is not zero. Infeasibility produces explicit conflicts
+  and bounded alternatives without silently exceeding the ceiling or purchasing.
+
+## Provider-independent action and approval contract
+
+Documented API/MCP contracts let Michael's own agents and available harness assemble carts,
+arrange supported fulfillment and perform separately authorized ordering; no required
+ChatGPT/Claude gateway. Retailer adapters are separate from models/harnesses, sharing UI
+identity, server-side membership/record/attachment permissions, validation, budget, approval,
+idempotency, order/receipt status, audit, undo and reconciliation. Test a generic tool client
+and chosen available harness for identical authority/recovery, not model-specific success.
+Bound delegation by scope, expiry/revocation and revision checks. Exact human approval binds
+actor/account/action/payload/version/amount or ceiling/fulfillment/expiry; material change
+invalidates it. Persist attempts/idempotency before external effects and reconcile UNKNOWN
+before retry. No duplicate orders/imports/ledger/calendar effects or inferred debt consent.
+
+Required Costco/Amazon/Target paths are qualified by operation/channel/geography, distinguishing
+genuine ordering APIs, cart/shoppable links, manual handoffs and unavailable access. Official
+developer/AI-agent documentation is not live qualification or coverage proof. New Instacart
+access remains BLOCKED without verified existing approval; no bypass/signup/outreach or MVP
+dependency. Restaurant receipt sharing is included; restaurant ordering is excluded.
+One existing pickup-first fulfillment groundwork lane compares eligible staged courier and
+accessible Shop&Deliver/Pick&Pack without building a network or payment processor. Indianapolis
+is research only; merchant/courier eligibility, cold chain and access remain unverified.
+
+## Traceability and admission
+
+Learning/stock/meal requirements extend AN-02/03/05/10/12, A02/03/05/17/18/19/21 and
+SPEC-02/03/04/05/09; action parity extends AN-01/10/11 and SPEC-00/01/05/10.
+They augment, never waive, A01–A23, SPEC-00–10, AN-01–12 and original consent/security gates.
+The six exact-build gates in docs/ACCEPTANCE.md are mandatory; none is passed by publication.
+Existing #63's PWA proposal is an interim scope, superseded only as a final-client destination
+by native AN-07/08. #64's bounded authoring recovery and original full coverage remain.
+Reuse CLOSED #75's accepted narrow paper evidence; full backend admission is still OPEN.
+#76/#87/#88 retain source-bound security prerequisites and cannot be closed by this contract.
+Transport work must not monopolize delivery: admitted pure domain/manual receipt/visual work
+may progress independently, never falsely labeled authenticated runtime or live ordering.

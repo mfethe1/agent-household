@@ -69,3 +69,51 @@ a receipt is reviewed and a split proposed, each consenting participant accepts 
 obligation, and all clients reopen the same explainable balances. Agent authority,
 initial/final persisted states, evidence IDs, failures and recovery must be recorded.
 Synthetic paths prove logic only; live retailer and physical-device claims remain separate.
+
+## Six finite exact-build completion gates (all OPEN)
+
+These augment every applicable A/SPEC/AN obligation. Record build/source identity, command,
+initial/final persisted state, evidence location, one owner and independent verification.
+An inventory must distinguish completed foundation from unverified product requirements.
+
+1. **Baseline/mandate/ownership:** reconcile assets, live issues/PRs and existing mandate;
+   save completed-versus-unverified inventory and prioritized acceptance matrix, one owner
+   per task/worktree. Preserve accepted work/budget; no restart or duplicate agents.
+2. **Two-cycle connected product:** two synthetic household members use actual agent tools
+   and human UI on authenticated persistent storage through the full connected journey,
+   surviving process restart and client reopen. Every cart line has evidence/quantity rationale.
+   Corrections/removals/substitutions persist and change a second cart. Test absent/stale history,
+   uncertain stock, one-time/persistent preferences, conflicts, deletion/revocation, budgets and
+   allergies. Zero hard-constraint violations, inferred spending authority or cross-household
+   learning leakage. Receipt/tax/tip/fee/discount/refund/split accounting reconciles exactly in
+   deterministic integer minor units; disputes never become accepted debt.
+3. **Clients and tools:** the same journey passes on physical iPhone, physical Android and
+   desktop web, recording build/OS, synchronization, accessibility/keyboard, camera-denial
+   fallback, expired sessions and interrupted save/upload recovery. Emulation is supporting
+   evidence only. Generic documented tool client and Michael's chosen available harness prove
+   identical authority/recovery; model-specific success alone fails. Secure sessions, deep
+   links, accessible navigation and qualified notifications remain required.
+4. **Adversarial/recovery:** independent inventory covers cross-user/household/attachment
+   access, revoked/expired authority, hostile content, stale approvals, concurrent edits,
+   duplicate/reordered requests, lost responses, crash after external effect, offline replay
+   and timeout. Zero unauthorized disclosures/effects or duplicated external/ledger effects.
+   UNKNOWN remains blocked until reconciliation. Audit reconstruction, undo/adjustments,
+   export, backup restore and rollback pass. No original gate or #87/#88 prerequisite waived.
+5. **Retailer continuity:** separately qualify required supported retailer operation/channel/
+   geography and order/receipt/refund continuity in the capability matrix. Consequential live
+   tests need separate bounded approval. Missing access/device/capability/approval is a named
+   blocker, never completion; independent manual receipt/expense work continues.
+6. **Weekly meals and outcomes:** demonstrate user-chosen healthier-eating criteria,
+   attendance/portions, preferences, stock and total remaining budget. Account for every meal's
+   ingredients/portions; explain substitutions with reviewed allergy/diet evidence. All-in cost
+   including fees/tax/tips/membership stays within ceiling; unknown is not zero. Infeasible
+   constraints produce conflicts/alternatives without purchase. Feedback changes the next plan;
+   record stock/leftover use and waste choices. Require exact-order approval. Compare declared
+   representative shopping/expense tasks against recorded baseline active time, handoffs,
+   corrections and understanding: 100% correct approved baskets/receipts/splits, zero unintended
+   effects and reduced active work/handoffs. Disclose incumbent advantages, not feature parity.
+
+The provisional 25% aim above is not a substitute for required demonstrated reductions.
+Preview/history analysis, local tests, hosted CI, physical devices, live retailer continuity
+and measured outcomes are separate claims. Protect identities, schedules, diet/health data
+and preferences; public evidence uses synthetic families only. No completion from worker report.
