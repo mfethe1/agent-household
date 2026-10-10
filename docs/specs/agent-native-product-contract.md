@@ -112,6 +112,25 @@ Learning/stock/meal requirements extend AN-02/03/05/10/12, A02/03/05/17/18/19/21
 SPEC-02/03/04/05/09; action parity extends AN-01/10/11 and SPEC-00/01/05/10.
 They augment, never waive, A01–A23, SPEC-00–10, AN-01–12 and original consent/security gates.
 The six exact-build gates in docs/ACCEPTANCE.md are mandatory; none is passed by publication.
+
+### Original package crosswalk (all full-package acceptance OPEN)
+
+These links map retained scopes, not replacement specifications or passed tests. Every package
+retains its original issue-body dependency, final-state, independent-review and closure gates.
+Airy owns acceptance; implementation/reviewer ownership must be confirmed from existing leases,
+not inferred here. Next: admit one dependency-ready slice, verify its saved states independently.
+- SPEC-00 (#2): domain/actors, trust, architecture, privacy/deletion/restore/key recovery and authority → A18–23, AN01/10/11, gates1/4; #76/87/88 remain dependencies.
+- SPEC-01 (#3): operation/channel evidence, freshness, unsupported access and authorized qualification → A01, AN03/05, gate5; source documentation is not live proof.
+- SPEC-02 (#4): needs/provenance, seller/variant/pack/labels/stock, exact conversions, stale/unknown rejection → A02/03, AN02/03, gates2/6; SPEC00/01 prerequisites retained.
+- SPEC-03 (#5): optional model-agnostic fixed eligible IDs/NONE/REVIEW, held-out/order-perturbed evaluation, privacy/cost/abstention → A02/19, AN02/10/12, gates2/4/6; no allergy authority or required model gateway.
+- SPEC-04 (#6): exact basket costs/rounding/surplus/fees, feasibility/completeness and approved phone visual contract → A03/22, AN03/09, gates3/6; optional SPEC03 cannot gate arithmetic.
+- SPEC-05 (#7): immutable exact approval, one-time mode/substitutions, expiry/replay, preserved cart and target readback → A04–07/22, AN03/10/11, gates2/4/5; UNKNOWN reconciles before retry.
+- SPEC-06 (#8): distinct order/charge/receipt evidence, shipment/weight/substitution/cancellation/refund correlation → A08/14/17, AN05/11, gates2/5; fixtures never qualify retailer status.
+- SPEC-07 (#9): safe multi-page evidence, owner/uploader/payer, editable uncertain extraction, totals/dedup and component-license review → A09–11/18/19/22, AN04/05, gates2/3/4; independent of checkout.
+- SPEC-08 (#10): signed integer/currency-exponent allocation, deterministic remainders/conservation, payers, consent/disputes and separate spend/reimbursement → A13–15/17/18, AN04/06, gates2/4; no inferred debt or enrollment.
+- SPEC-09 (#11): linked postacceptance adjustments, refund/reversal, reported/confirmed settlement and stable replay → A16/17/20, AN04/11, gates2/4; no transfer execution.
+- SPEC-10 (#12): connector checkpoints/gaps/revocation/fallback, isolation/export, self-hosted setup/restore/retention, accessibility and frozen pilot → A12/18–23, AN07–12, gates3–6; security stays in SPEC00, not deferred.
+
 Existing #63's PWA proposal is an interim scope, superseded only as a final-client destination
 by native AN-07/08. #64's bounded authoring recovery and original full coverage remain.
 Reuse CLOSED #75's accepted narrow paper evidence; full backend admission is still OPEN.

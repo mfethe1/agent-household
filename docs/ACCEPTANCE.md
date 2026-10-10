@@ -75,6 +75,9 @@ Synthetic paths prove logic only; live retailer and physical-device claims remai
 These augment every applicable A/SPEC/AN obligation. Record build/source identity, command,
 initial/final persisted state, evidence location, one owner and independent verification.
 An inventory must distinguish completed foundation from unverified product requirements.
+Complete only when all applicable gates pass against the saved exact-build state. Otherwise
+record each failed gate, its owner, next bounded action or authorization dependency in the
+existing checks/progress; no partial review or prerequisite count substitutes for acceptance.
 
 1. **Baseline/mandate/ownership:** reconcile assets, live issues/PRs and existing mandate;
    save completed-versus-unverified inventory and prioritized acceptance matrix, one owner
@@ -106,7 +109,9 @@ An inventory must distinguish completed foundation from unverified product requi
 6. **Weekly meals and outcomes:** demonstrate user-chosen healthier-eating criteria,
    attendance/portions, preferences, stock and total remaining budget. Account for every meal's
    ingredients/portions; explain substitutions with reviewed allergy/diet evidence. All-in cost
-   including fees/tax/tips/membership stays within ceiling; unknown is not zero. Infeasible
+   including fees/tax/tips/membership and reconciled prior spending stays within the remaining
+   ceiling; expose incomplete coverage and estimates (see the contract's persistent learning,
+   stock and weekly meals section). Unknown is not zero. Infeasible
    constraints produce conflicts/alternatives without purchase. Feedback changes the next plan;
    record stock/leftover use and waste choices. Require exact-order approval. Compare declared
    representative shopping/expense tasks against recorded baseline active time, handoffs,
