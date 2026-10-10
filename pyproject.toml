@@ -1,0 +1,15 @@
+[tool.ruff]
+required-version = "==0.16.8"
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "A", "C4", "SIM", "RUF", "ANN"]
+
+[tool.basedpyright]
+include = ["agent_household", "tests"]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"
+executionEnvironments = [
+  { root = "tests", extraPaths = [".", "tests"] },
+  { root = "." },
+]
