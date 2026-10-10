@@ -2,7 +2,7 @@
 
 import io
 import unittest
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from typing import cast
 
@@ -66,7 +66,7 @@ def _reset(counts: CallbackCounts) -> None:
 
 class HostileCallbackTests(unittest.TestCase):
     @contextmanager
-    def _silent(self) -> Iterator[None]:
+    def _silent(self) -> Generator[None, None, None]:
         stdout = io.StringIO()
         stderr = io.StringIO()
         with redirect_stdout(stdout), redirect_stderr(stderr):

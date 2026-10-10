@@ -7,12 +7,18 @@ from agent_household.target_url import validate_product_url
 
 
 class TargetURLTests(unittest.TestCase):
+    def rejects(self, url: object, tcin: object) -> None:
+        with self.assertRaises(ValueError) as caught:
+            validate_product_url(cast(str, url), cast(str, tcin))
+        self.assertEqual(str(caught.exception), "invalid Target product URL")
+
     def test_canonical_identity(self) -> None:
         for slug, tcin in (
             ("synthetic-rice", "54602335"),
             ("a", "54602335"),
             ("a2-b3", "54602335"),
             ("a" * 160, "54602335"),
+            ("a-" * 79 + "aa", "54602335"),
             ("synthetic", "00000001"),
         ):
             url = f"https://www.target.com/p/{slug}/-/A-{tcin}"
@@ -34,6 +40,9 @@ class TargetURLTests(unittest.TestCase):
             " " + url,
             url.replace("www.target.com", "user:sentinel@www.target.com"),
             url.replace("www.target.com", "www.target.com.evil"),
+            url.replace("www.target.com", "www-target.com"),
+            url.replace("www.target.com", "wwwxtarget.com"),
+            url.replace("www.target.com", "www.targetxcom"),
             url.replace("www.target.com", "target.com"),
             url.replace("https:", "http:"),
             url.replace("https:", "file:"),
@@ -44,6 +53,7 @@ class TargetURLTests(unittest.TestCase):
             url.replace("www.target.com", "WWW.TARGET.COM"),
             url.replace("https", "HTTPS"),
             url.replace("/p/", "/P/"),
+            url.replace("/-/A-", "/-/a-"),
             url.replace("synthetic", "Synthetic"),
             url.replace("target", "t\u0430rget"),
             url.replace("synthetic", "synthetic\u200b"),
@@ -60,6 +70,7 @@ class TargetURLTests(unittest.TestCase):
             url.replace("synthetic-rice", "synthetic-"),
             url.replace("synthetic-rice", "synthetic--rice"),
             url.replace("synthetic-rice", "a" * 161),
+            url.replace("synthetic-rice", "a-" * 80 + "a"),
             url.replace("synthetic-rice", "a" * 513),
             url.replace("54602335", "5460233"),
             url.replace("54602335", "546023355"),
@@ -67,9 +78,8 @@ class TargetURLTests(unittest.TestCase):
             url.replace("synthetic", "synthetic\t"),
         ]
         for item in bad:
-            with self.subTest(url=item), self.assertRaises(ValueError) as caught:
-                validate_product_url(item, "54602335")
-            self.assertEqual(str(caught.exception), "invalid Target product URL")
+            with self.subTest(url=item):
+                self.rejects(item, "54602335")
 
     def test_invalid_types_and_tcin(self) -> None:
         class DerivedStr(str):
@@ -82,14 +92,20 @@ class TargetURLTests(unittest.TestCase):
             "\uff15\uff14\uff16\uff10\uff12\uff13\uff13\uff15",
             "54602335\n",
         ):
-            with self.subTest(tcin=item), self.assertRaises(ValueError):
-                validate_product_url(url, item)
+            with self.subTest(tcin=item):
+                self.rejects(url, item)
         for item in (1, True, b"54602335", None, DerivedStr("54602335")):
-            with self.subTest(tcin=item), self.assertRaises(ValueError):
-                validate_product_url(url, cast(str, item))
+            with self.subTest(tcin=item):
+                self.rejects(url, item)
         for item in (1, True, url.encode(), None, DerivedStr(url)):
-            with self.subTest(url=item), self.assertRaises(ValueError):
-                validate_product_url(cast(str, item), "54602335")
+            with self.subTest(url=item):
+                self.rejects(item, "54602335")
+        for item in (
+            "\uff15\uff14\uff16\uff10\uff12\uff13\uff13\uff15",
+            "\u0665\u0664\u0666\u0660\u0662\u0663\u0663\u0665",
+        ):
+            with self.subTest(matching_non_ascii=item):
+                self.rejects(url.replace("54602335", item), item)
 
 
 if __name__ == "__main__":

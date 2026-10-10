@@ -13,3 +13,26 @@ browser-profile/
 __pycache__/
 node_modules/
 .DS_Store
+# SQLite sidecars hold live data pages
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal
+*.db-wal
+*.db-shm
+*.db-journal
+# Private keys and certificate bundles
+*.pem
+*.key
+*.p12
+*.pfx
+# Browser network captures
+*.har
+# Local tooling
+.venv/
+venv/
+.coverage
+.basedpyright/
+.ruff_cache/

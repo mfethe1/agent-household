@@ -35,9 +35,10 @@ Public dependency base `66355e86e88ae236f34ae821f2e961b3e763015f`:
 - `agent_household/target_tcin.py` SHA256 `0b32c714d589095fb6fe5a9b93b6bf8670634223003cc75a41e4f253d39ca988`.
 - `agent_household/json_tree.py` SHA256 `edde6f94f60f09f66ac61e7b9a15ee4c66daba345dc93028e17cb9fae6c61b02`.
 Dependency bodies were supplied to tools-disabled author; parent must verify exact bytes/pins and reject drift. Establish exclusive ownership and exact freshbase before implementation.
-Run `/Users/mfethe/.local/bin/python3.11 -B -m unittest discover -s tests -v`: retain43 existing+five new tests, no skips.
+`PYTHON` is an external Python 3.11 shell variable, named as in `docs/TARGET_TCIN.md`; current repository check commands are in `CONTRIBUTING.md`.
+Run `"$PYTHON" -B -m unittest discover -s tests -v`: retain43 existing+five new tests, no skips.
 Across ALL `agent_household` and `tests`: isolated no-cache Ruff targetpy311 select `E,F,W,I,UP,B,A,C4,SIM,RUF,ANN`, plus full isolated formattercheck.
-External Basedpyright config strict Python3.11, include both full directories, worktree+tests extraPaths, exact interpreter `/Users/mfethe/.local/bin/python3.11`; no exclusions/suppressions/Any/settings weakening.
+External Basedpyright config strict Python3.11, include both full directories, worktree+tests extraPaths, exact interpreter `"$PYTHON"`; no exclusions/suppressions/Any/settings weakening.
 External-cache compileall, gitdiff whitespace checks, exact three-file scope, all formatted additions+deletions<=399 including docs; AST fragments are not complete allocations.
 Implementation issue, independent executed review/mutation receipts, parent publication and fresh merged verification required; paper/size alone not admission. Rollback only owned isolated changes.
 

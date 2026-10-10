@@ -57,6 +57,20 @@ class RecordTitleTests(unittest.TestCase):
         for index, tcin in enumerate(("", "x" * 100, "\u0627", "\uff11", "\ud800")):
             with self.subTest(nonmatching=index):
                 self.fact(fixture(tcin, {"ignored": [None]}), ID, ())
+        near_misses = (
+            "123456789",
+            "1234567",
+            "012345678",
+            " 12345678",
+            "12345678\n",
+            "\uff11\uff12\uff13\uff14\uff15\uff16\uff17\uff18",
+            "\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668",
+        )
+        for index, tcin in enumerate(near_misses):
+            with self.subTest(near_miss=index):
+                self.fact(fixture(tcin), ID, ())
+        with self.subTest(near_miss="unpadded"):
+            self.fact(fixture("1234"), "00001234", ())
 
     def test_r02_native_type_matrix(self) -> None:
         rows: tuple[tuple[str, object], ...] = (
@@ -78,6 +92,8 @@ class RecordTitleTests(unittest.TestCase):
                 self.fact(fixture("other", copy.deepcopy(value)), ID, ())
         with self.subTest(missing_title="matching"):
             self.assertIsNone(collect_record_title({"tcin": ID}, ID))
+        with self.subTest(missing_title="name-only"):
+            self.assertIsNone(collect_record_title({"tcin": ID, "name": "raw"}, ID))
         with self.subTest(missing_title="nonmatching"):
             self.fact({"tcin": "other"}, ID, ())
 

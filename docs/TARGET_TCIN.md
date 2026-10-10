@@ -9,6 +9,15 @@ and ASCII range comparisons. It performs no IO, logging, normalization, mutation
 document traversal, guard invocation or exception catching. Cancellation is not
 caught; general hostile concurrent safety is not promised.
 
+## Provenance
+
+The exactly-eight-ASCII-digit length, and the canonical URL grammar in
+`docs/TARGET_URL.md` that embeds it, have no recorded source or evidence level
+(GOAL_PROMPT.md: documented, source-inspected, live-tested or unavailable) in
+this repository. Both are unverified assumptions until the P0-01 capability
+matrix (`docs/specs/SPEC-01.md`) records one; passing tests show only that the
+code enforces them.
+
 ## Committed regression map
 
 All test names below belong to `TargetTcinTests` in `tests/test_target_tcin.py`.
@@ -26,6 +35,12 @@ All test names below belong to `TargetTcinTests` in `tests/test_target_tcin.py`.
 | P09 | External full inherited/new suite, strict gates, budget, hashes and exact-head review below. |
 
 ## External reproduction and acceptance
+
+This section is the historical gate for this slice at the base named below,
+which predates the `tests/` helper modules (`real_call_probe`,
+`hostile_callbacks`); on later trees `extraPaths` of `[WORKTREE]` alone leaves
+their imports unresolved. Current repository check commands are in
+`CONTRIBUTING.md`.
 
 This artifact reports no executed gates, mutation results, commits or review.
 The parent installs only the three allowed new files; inherited files stay intact.
