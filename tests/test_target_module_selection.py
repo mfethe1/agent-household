@@ -6,7 +6,7 @@ import inspect
 import io
 import sys
 import unittest
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from types import FrameType
 from typing import cast
@@ -39,7 +39,7 @@ def selected(**fields: object) -> dict[str, object]:
 
 
 @contextmanager
-def prior_trace() -> Iterator[TraceHook]:
+def prior_trace() -> Generator[TraceHook, None, None]:
     original = cast("TraceHook | None", sys.gettrace())
 
     def prior(_frame: FrameType, _event: str, _arg: object) -> TraceHook:
@@ -91,6 +91,11 @@ class SelectionTests(unittest.TestCase):
             ("unknown", {"module_type": "Other", "version": None}, False),
             ("nonstring-before-bad-version", {"module_type": 7, "version": []}, False),
             ("nonzero-ignores-data", selected(version=1, module_data=None), False),
+            ("negative-version", selected(version=-1), False),
+            ("empty-type", selected(module_type=""), False),
+            ("substring-type", selected(module_type="Title"), False),
+            ("prefix-type", selected(module_type="ProductDetailTitleV2"), False),
+            ("suffix-type", selected(module_type="XProductDetailTitle"), False),
             ("unknown-generic", {"module_data": {"title": "raw"}}, False),
             (
                 "unknown-type-generic",

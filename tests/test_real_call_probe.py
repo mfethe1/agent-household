@@ -3,7 +3,7 @@
 import io
 import sys
 import unittest
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from types import FrameType
 from typing import cast
@@ -15,7 +15,7 @@ from agent_household.target_tcin import is_target_tcin
 
 
 @contextmanager
-def prior_trace() -> Iterator[TraceHook]:
+def prior_trace() -> Generator[TraceHook, None, None]:
     """Keep test failures and restoration mutants isolated from the runner."""
     original = cast("TraceHook | None", sys.gettrace())
 
@@ -134,6 +134,24 @@ class RealCallProbeTests(unittest.TestCase):
             )
             self.assertIs(result, True)
             self.assertEqual(events, [])
+            self.assertIs(sys.gettrace(), prior)
+
+    def test_each_call_observed_by_code_identity(self) -> None:
+        code = is_target_tcin.__code__
+        twin = code.replace()
+        self.assertIsNot(twin, code)
+        self.assertEqual((twin.co_name, twin.co_qualname), ("is_target_tcin",) * 2)
+        with prior_trace() as prior:
+            events: list[str] = []
+            pair = probe_calls(
+                lambda: (is_target_tcin("12345678"), is_target_tcin("x")), code, events
+            )
+            twin_events: list[str] = []
+            result = probe_calls(lambda: is_target_tcin("12345678"), twin, twin_events)
+            self.assertEqual(pair, (True, False))
+            self.assertEqual(events, ["call", "call"])
+            self.assertIs(result, True)
+            self.assertEqual(twin_events, [])
             self.assertIs(sys.gettrace(), prior)
 
     def test_empty_operation_restores(self) -> None:
