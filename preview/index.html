@@ -34,7 +34,7 @@
     <aside aria-label="Preview limitations">
       <p>Local preview — not signed in; changes are not saved</p>
       <p>Live prices, availability, retailer handoff and ordering unavailable</p>
-      <p>Reloading clears every need and basket selection. No household data is loaded.</p>
+      <p>Reloading clears every need, basket selection and undo history. No household data is loaded.</p>
     </aside>
     <p class="muted">Future flow: needs → offers → basket → approval → order → pickup → receipt.
       Offers, approval, order, pickup and receipt are unavailable in this preview.</p>
@@ -76,6 +76,7 @@
       <h2 id="needs-heading">Your needs</h2>
       <p id="needs-empty">No needs yet. Add a title, quantity and category above.</p>
       <ul id="needs"></ul>
+      <button id="undo-removal" class="secondary" type="button" hidden>Undo removal</button>
       <button id="review" type="button">Review basket selections</button>
     </section>
     <section aria-labelledby="basket-heading">

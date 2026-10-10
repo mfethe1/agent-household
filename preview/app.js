@@ -56,6 +56,23 @@ export function removeNeed(state, id) {
   return { ...state, needs: state.needs.filter(need => need.id !== id) };
 }
 
+// Recovery is bound to the exact post-removal state, not stored in emptyState.
+// Every successful add/edit/selection creates a new state and invalidates it.
+export function removeNeedWithRecovery(state, id) {
+  const next = removeNeed(state, id);
+  const index = state.needs.findIndex(need => need.id === id);
+  return { state: next, recovery: { state: next, index, need: { ...state.needs[index] } } };
+}
+
+export function restoreRemovedNeed(state, recovery) {
+  if (!recovery || recovery.state !== state || state.needs.some(need => need.id === recovery.need.id)) {
+    return state;
+  }
+  const needs = [...state.needs];
+  needs.splice(recovery.index, 0, { ...recovery.need });
+  return { ...state, needs };
+}
+
 export function basketNeeds(state) {
   return state.needs.filter(need => need.included);
 }
@@ -63,6 +80,7 @@ export function basketNeeds(state) {
 export function mountPreview(document) {
   let state = emptyState();
   let editingId = null;
+  let recovery = null;
   const get = id => document.getElementById(id);
   const element = (tag, text) => {
     const node = document.createElement(tag);
@@ -91,6 +109,8 @@ export function mountPreview(document) {
     return node;
   };
   const render = () => {
+    if (recovery?.state !== state) recovery = null;
+    get('undo-removal').hidden = recovery === null;
     get('needs').replaceChildren();
     get('basket').replaceChildren();
     get('needs-empty').hidden = state.needs.length > 0;
@@ -123,11 +143,11 @@ export function mountPreview(document) {
         get('cancel').hidden = false;
         get('title').focus();
       }), button('Remove', () => {
-        state = removeNeed(state, need.id);
+        ({ state, recovery } = removeNeedWithRecovery(state, need.id));
         if (editingId === need.id) resetEditor();
         render();
-        get('title').focus();
-        announce('Need removed from needs and basket.');
+        get('undo-removal').focus();
+        announce('Need removed from needs and basket. Undo removal is available until the next change.');
       }));
       row.append(label, actions);
       get('needs').append(row);
@@ -165,6 +185,14 @@ export function mountPreview(document) {
     get(id).addEventListener('input', clearInvalid);
     get(id).addEventListener('change', clearInvalid);
   }
+  get('undo-removal').addEventListener('click', () => {
+    const restored = restoreRemovedNeed(state, recovery);
+    if (restored === state) return;
+    state = restored;
+    render();
+    get('review').focus();
+    announce('Need restored to its original position and basket selection. Changes are not saved.');
+  });
   get('cancel').addEventListener('click', () => { resetEditor(); get('title').focus(); });
   get('review').addEventListener('click', () => { get('basket-heading').focus(); });
   render();

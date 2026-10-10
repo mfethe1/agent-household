@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   emptyState, validateNeed, addNeed, editNeed, removeNeed, includeNeed, basketNeeds,
-  amountUnits, packageIntentLimit, formatNeed,
+  amountUnits, packageIntentLimit, formatNeed, removeNeedWithRecovery, restoreRemovedNeed,
 } from './app.js';
 
 // Synthetic adversarial fixtures only; these are not household or retailer data.
@@ -145,6 +145,75 @@ test('invalid unit/package type or length rejects add/edit without mutation', ()
   }
   assert.equal(validateNeed({ ...fields, packageIntent: 'x'.repeat(120) }).packageIntent.length, 120);
   assert.equal(validateNeed({ ...fields, packageIntent: '   ' }).packageIntent, '');
+});
+
+test('removal recovery restores all fields, position and basket once without ID rollback', () => {
+  let original = emptyState();
+  for (const title of ['First', '<script>synthetic()</script>', 'Last']) {
+    original = addNeed(original, { ...fields, title, quantity: 0.25, unit: 'kg',
+      packageIntent: '<img src=x onerror="synthetic()">', category: 'Other' });
+  }
+  original = includeNeed(original, 2, true);
+  const snapshot = structuredClone(original);
+  Object.freeze(original);
+  Object.freeze(original.needs);
+  original.needs.forEach(Object.freeze);
+  const { state, recovery } = removeNeedWithRecovery(original, 2);
+  assert.deepEqual(state.needs.map(need => need.id), [1, 3]);
+  assert.deepEqual(basketNeeds(state), []);
+  const removedSnapshot = structuredClone(state);
+  const tokenSnapshot = structuredClone(recovery);
+  const restored = restoreRemovedNeed(state, recovery);
+  assert.deepEqual(restored, snapshot);
+  assert.deepEqual(basketNeeds(restored), [snapshot.needs[1]]);
+  assert.deepEqual(original, snapshot);
+  assert.deepEqual(state, removedSnapshot);
+  assert.deepEqual(recovery, tokenSnapshot);
+  assert.strictEqual(restoreRemovedNeed(restored, recovery), restored);
+  const added = addNeed(restored, fields);
+  assert.deepEqual(added.needs.map(need => need.id), [1, 2, 3, 4]);
+  assert.equal(added.nextId, 5);
+  assert.strictEqual(restoreRemovedNeed(added, recovery), added);
+  assert.strictEqual(restoreRemovedNeed(state, null), state);
+});
+
+test('second removal replaces recovery; older and repeated tokens cannot restore', () => {
+  let original = addNeed(addNeed(addNeed(emptyState(), fields), fields), fields);
+  original = includeNeed(original, 3, true);
+  const first = removeNeedWithRecovery(original, 1);
+  const second = removeNeedWithRecovery(first.state, 3);
+  assert.strictEqual(restoreRemovedNeed(second.state, first.recovery), second.state);
+  const restored = restoreRemovedNeed(second.state, second.recovery);
+  assert.deepEqual(restored.needs.map(need => need.id), [2, 3]);
+  assert.deepEqual(basketNeeds(restored).map(need => need.id), [3]);
+  assert.strictEqual(restoreRemovedNeed(restored, first.recovery), restored);
+  assert.strictEqual(restoreRemovedNeed(restored, second.recovery), restored);
+  assert.equal(restored.nextId, 4);
+});
+
+test('invalid operations retain recovery, every successful mutation invalidates it', () => {
+  const original = addNeed(addNeed(emptyState(), fields), fields);
+  const { state, recovery } = removeNeedWithRecovery(original, 1);
+  const snapshot = structuredClone(state);
+  for (const operation of [
+    () => addNeed(state, { ...fields, title: '' }),
+    () => editNeed(state, 2, { ...fields, quantity: 0 }),
+    () => editNeed(state, 2, { ...fields, unit: 'invalid' }),
+    () => editNeed(state, 99, fields),
+    () => includeNeed(state, 2, 'true'),
+    () => includeNeed(state, 99, true),
+    () => removeNeedWithRecovery(state, 99),
+  ]) {
+    assert.throws(operation);
+    assert.deepEqual(state, snapshot);
+    assert.deepEqual(restoreRemovedNeed(state, recovery), original);
+  }
+  for (const changed of [addNeed(state, fields), editNeed(state, 2, fields),
+    includeNeed(state, 2, true), includeNeed(state, 2, false)]) {
+    assert.strictEqual(restoreRemovedNeed(changed, recovery), changed);
+    assert.ok(!changed.needs.some(need => need.id === 1));
+  }
+  assert.strictEqual(restoreRemovedNeed(emptyState(), recovery).needs.length, 0);
 });
 
 test('malicious package remains literal through real operations and formatter', () => {
