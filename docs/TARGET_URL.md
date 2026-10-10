@@ -20,8 +20,8 @@ parser, production transport and live qualification remain separate pending work
 
 ## Provenance
 
-The canonical URL grammar above, including its exactly-eight-ASCII-digit TCIN,
-has no recorded source or evidence level (GOAL_PROMPT.md: documented,
+The canonical URL grammar above and its exactly-eight-ASCII-digit TCIN have
+no recorded source or evidence level (GOAL_PROMPT.md: documented,
 source-inspected, live-tested or unavailable) in this repository. Both are
 unverified assumptions until the P0-01 capability matrix (`docs/specs/SPEC-01.md`)
 records one; passing tests show only that this helper enforces them.

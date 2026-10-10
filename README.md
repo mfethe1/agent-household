@@ -10,7 +10,7 @@ Open-source project specification for agent-assisted Costco, Amazon and Target s
 - [Acceptance scenarios](docs/ACCEPTANCE.md): required proof and pilot measurements.
 - [Backlog](BACKLOG.md): dependency-ordered work, issue crosswalk, merged precursor work and external blockers.
 - [Documentation index](docs/specs/INDEX.md): kind, origin and current status of every document under `docs/`.
-- [Gap analysis](docs/reviews/2026-10-gap-analysis.md): audit report.
+- [Gap analysis](docs/reviews/2026-10-gap-analysis.md) and [remediation plan](docs/reviews/2026-10-remediation-plan.md): October 2026 audit, open owner decisions in #70.
 - [Contribution rules](CONTRIBUTING.md): evidence, privacy and review requirements.
 
 ## Repository contents

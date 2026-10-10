@@ -411,6 +411,7 @@ class QuoteTests(unittest.TestCase):
         # combination yields the identical Quote, ready or blocked. A change
         # that makes either field matter must update these baselines.
         blocked = replace(offer, price_cents=None, stock="unknown", retailer=None)
+        unavailable = replace(offer, stock="unavailable")
         late = NOW + timedelta(minutes=16)
         ready_baseline = Quote(
             "needs_review", ("label_unqualified",), 3, 597, "USD", None, False, False
@@ -431,17 +432,31 @@ class QuoteTests(unittest.TestCase):
             False,
             False,
         )
+        unavailable_baseline = Quote(
+            "blocked",
+            ("label_unqualified", "stock_unavailable"),
+            3,
+            597,
+            "USD",
+            None,
+            False,
+            False,
+        )
         for label in ("unknown", "partial"):
             for source in ("public_web", "synthetic_fixture"):
                 observation = replace(offer.observation, source_kind=source)
                 ready = replace(offer, label_status=label, observation=observation)
                 stuck = replace(blocked, label_status=label, observation=observation)
+                gone = replace(unavailable, label_status=label, observation=observation)
                 with self.subTest(label=label, source=source):
                     self.assertEqual(
                         quote_line("5", "each", ready, NOW), ready_baseline
                     )
                     self.assertEqual(
                         quote_line("5", "each", stuck, late), blocked_baseline
+                    )
+                    self.assertEqual(
+                        quote_line("5", "each", gone, NOW), unavailable_baseline
                     )
         self.assertEqual(
             quote_line("1", "each", offer, NOW + timedelta(minutes=15)).evidence_status,

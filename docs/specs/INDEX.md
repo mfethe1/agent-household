@@ -2,16 +2,16 @@
 
 Status authority for every Markdown document under `docs/`. Verified 2026-10-10 against `git log -- <path>` on `main` @ `6f387c0` and GitHub issue state. Where a document's own status line disagrees with this index, this index governs.
 
-Several merged papers carry header or closing status lines written before review and merge, for example "UNREVIEWED / UNEXECUTED", "#58 and parent #9 remain OPEN", "not a repository write" and "No … repository writes … occurred". The papers under `docs/specs/` and `docs/research/` are pinned by SHA-256 or merge commit in other documents and issues (#9, #61), so their bodies are left unedited; their hashes are listed below. Some module docs merged with similar pre-merge wording ("Proposal only", "proposed paper", "external paper proposal only").
+Several merged papers carry header or closing status lines written before review and merge, for example "UNREVIEWED / UNEXECUTED", "#58 and parent #9 remain OPEN", "not a repository write" and "No … repository writes … occurred". The four merged papers under `docs/specs/` and `docs/research/` are pinned by SHA-256 or merge commit in other documents and issues (#9, #61), so their bodies are left unedited; their hashes are listed below. Some module docs merged with similar pre-merge wording ("Proposal only", "proposed paper", "external paper proposal only").
 
 No document here closes a backlog ticket or passes an acceptance item. Issues #2–#12 also require `docs/specs/TRACEABILITY.md`; it does not exist yet. Requirement-to-A-ID maps currently live in the papers themselves and in #9 comments.
 
-Kinds: governing contract, design paper, module doc, research, audit, index.
+Kinds: governing contract, proposed model, design paper, module doc, research, audit, index.
 
 | Path | Kind | Origin issue → PR / merge commit | Current status |
 |---|---|---|---|
 | `docs/ACCEPTANCE.md` | governing contract | initial publication, no PR / `719ba57`; named by program #1 | Every scenario pending. A24 and A25 added by this change, pending review. |
-| `docs/TRANSACTION_MODEL.md` | governing contract | initial publication, no PR / `719ba57`; named by program #1 | Proposed model. Its independent review is P0-02 under #2 SPEC-00, which is OPEN. |
+| `docs/TRANSACTION_MODEL.md` | proposed model | initial publication, no PR / `719ba57`; named by program #1 | Proposed model. Its independent review is P0-02 under #2 SPEC-00, which is OPEN. |
 | `docs/HOSTILE_CALLBACKS.md` | module doc | #41 → #42 / `144bd2d` | Merged test-only fixtures (`tests/hostile_callbacks.py`). #41 closed (completed). Prerequisite of open #33. |
 | `docs/JSON_TREE.md` | module doc | #30, #31 → #32 / `f8e586c` | Merged offline guard (`agent_household/json_tree.py`). #30 and #31 closed (completed). `target_record_title` and `target_module_selection` now import it. |
 | `docs/OFFER_EVIDENCE.md` | module doc | #19 → #21 / `0161e1f`, #22 / `649f838` | Merged offline offer schema and quote arithmetic. #19 (SPEC-02 child) closed (completed). Parent #4 SPEC-02 is OPEN. Synthetic only; not live offer evidence. |
@@ -26,7 +26,8 @@ Kinds: governing contract, design paper, module doc, research, audit, index.
 | `docs/specs/receipt-draft-seam-contract.md` | design paper | #58 (blocker #59) → #60 / `6f387c0` | Merged contract-only design. #58 and #59 closed (completed). #9 comment 6079742096 records "DELIVERED_CONTRACT_ONLY". Implementation admission #61 and #9 are OPEN. |
 | `docs/specs/SPEC-01.md` | design paper | #3 SPEC-01 → this change | Capability matrix draft (this change, pending review). #3 is OPEN; A01 is not passed. |
 | `docs/specs/INDEX.md` | index | required by #2–#12 → this change | This index (this change, pending review). |
-| `docs/reviews/2026-10-gap-analysis.md` | audit | this change | Audit report (this change). |
+| `docs/reviews/2026-10-gap-analysis.md` | audit | this change | Audit report: 46 verified and 9 rejected gaps. Not a ticket; closes nothing. |
+| `docs/reviews/2026-10-remediation-plan.md` | audit | this change | Remediation plan and dispatch status for the audit (#70–#72 filed). Not a ticket; closes nothing. |
 
 ## Pinned paper hashes
 

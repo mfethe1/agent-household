@@ -7,7 +7,7 @@
 - **Outcome of this pass: no first-party page could be fetched** (§8). Under §2 no cell is "documented", so every cell is UNKNOWN. §7 lists the candidate first-party sources that the next pass must fetch.
 - No account was connected, no cart was read or changed and nothing was purchased. No partnership, program enrollment or retailer access is claimed.
 - Required retailers: Costco, Amazon, Target (GOAL_PROMPT.md:9). Costco and Amazon channels follow GOAL_PROMPT.md:9.
-- GOAL_PROMPT.md:9 does not enumerate Target channels. The Target rows below split fulfillment modes as #3 asks ("identify Target channel/store/fulfillment explicitly"). Their names are provisional, taken from an unfetched candidate (S14); the row set is owner decision O2.
+- GOAL_PROMPT.md:9 does not enumerate Target channels. The Target rows below split fulfillment modes as #3 asks ("identify Target channel/store/fulfillment explicitly"). Their names are provisional, taken partly from #3's wording and partly from an unfetched candidate (S14); the row set is owner decision O2.
 - Instacart appears in §4 only because #66 raises it. It is optional, not required by GOAL, and not part of A01.
 - This revision drafts the matrix, sources and qualification tasks only. §12 lists the #3 sections not yet drafted.
 
@@ -82,7 +82,7 @@ Every note shares one premise: no first-party page was fetched (§8). The S-ids 
 - **a2**: No programmatic cart route was identified. Terms candidate: S9, which #66 says "explicitly address[es] agents". Lead: L1.
 - **a3**: Candidate S10, the PA-API 5 "Add to Cart form", found on a Japan-hosted copy. Its status after the PA-API 5 deprecation (S7; lead L3) is not established.
 - **a4**: Search found no US first-party help page on order status, invoices or refunds, and no usable lead.
-- **a5**: Candidate S11 covers Fresh eligibility and geography. Whether S6 covers Fresh items is not established.
+- **a5**: Candidate S11 is expected to cover Fresh eligibility and geography (unfetched). Whether S6 covers Fresh items is not established.
 
 **Target**
 - **t1**: The #24 observation (§6) is identity-only and was not re-run, so it is not counted. A request to S12 was refused. Lead L4 (2014) says that portal is limited to employees and partners.
@@ -100,7 +100,7 @@ Every note shares one premise: no first-party page was fetched (§8). The S-ids 
 #24 records the observation below. It is not counted as any evidence level:
 - It was anonymous.
 - It has no field-source map.
-- It was not independently reviewed.
+- #24 records no independent review.
 - #24 itself states that "an anonymous identity-only adapter cannot close this blocker or parent A01".
 
 | Date | Operation | Channel / store | Result | Explicitly not qualified (#24) |
@@ -138,7 +138,7 @@ Every note shares one premise: no first-party page was fetched (§8). The S-ids 
 | S20 | https://company.instacart.com/business/developers | search | Developer Platform program page | 2026-10-10 refused | n/e | n/e | n/e | n/e |
 
 ## 8. Fetch log (2026-10-10)
-**Hosts refused.** This session's egress policy refused the HTTPS tunnel (HTTP 403) for these hosts, one request each:
+**Hosts refused.** This session's egress policy refused the HTTPS tunnel (HTTP 403) for these hosts, at least one request each:
 - `docs.instacart.com`, `company.instacart.com`, `www.instacart.com`
 - `customerservice.costco.com`, `www.costco.com`, `costco.com`, `costco.ca`
 - `webservices.amazon.com`, `webservices.amazon.co.jp`, `www.amazon.com`, `affiliate-program.amazon.com`, `aboutamazon.com`
@@ -194,11 +194,19 @@ Each lead must be checked against the first-party candidate in brackets before a
 | IC-K | Only if O1 adopts it: create a shopping-list link from a synthetic list with a development key (key issuance is enrollment, O5). Confirm the user-completed path and which store and price data the link exposes. |
 | IC-O | Only if O1 and O5 approve: after provisioning, inspect the tool schema and store availability read-only; check whether a submit-order tool exists and whether Costco is covered. |
 
+**Target identifier and payload assumptions (G49).** The merged Target helpers enforce three assumptions with no recorded source. Each stays UNKNOWN until #24's authorized readback records an evidence level; #23, #25 and #33 should not resume before then.
+
+| Assumption | Enforced by | Evidence level |
+|---|---|---|
+| TCIN is exactly eight ASCII digits | `agent_household/target_tcin.py` | UNKNOWN |
+| Canonical product URL `https://www.target.com/p/<slug>/-/A-<tcin>` | `agent_household/target_url.py` | UNKNOWN |
+| `ProductDetailTitle` v0 module with `data_by_tcin` records | `agent_household/target_module_selection.py`, `agent_household/target_record_title.py` | UNKNOWN (type-shape from a private capture only, #29) |
+
 ## 11. Owner decisions
 - **O1. Instacart.** Does Instacart become a required channel or route? #66 asks for grocery-first Costco, Instacart and Amazon, but GOAL_PROMPT.md:9 keeps other retailers optional. If adopted, GOAL_PROMPT.md:9, A01 and this matrix change together.
 - **O2. Target channel set.** GOAL does not enumerate Target channels.
   - Confirm rows TG-P, TG-U, TG-D and TG-S, and whether pickup and Drive Up are one channel.
-  - `agent_household/offer_evidence.py` `channel` values are `warehouse`, `same_day`, `shipped`, `retail`, `fresh` and `pickup`. None names Drive Up, and nothing checks retailer/channel pairs (audit G46).
+  - `agent_household/offer_evidence.py` `channel` values are `warehouse`, `same_day`, `shipped`, `retail`, `fresh` and `pickup`. None names Drive Up, and nothing checks retailer/channel pairs (`agent_household/offer_evidence.py`; #19).
 - **O3. Costco same-day.** Does a route through Instacart qualify CO-D? Can evidence from the IC rows be reused for CO-D?
 - **O4. Warehouse (in-person) channel.** Which operations apply to it? Cart, handoff and order status may not apply. Until decided, those cells stay UNKNOWN, not "unavailable".
 - **O5. Program enrollment.** Should the project apply for Amazon Associates / Creators API credentials, an Instacart Developer Platform key, or Instacart OAuth MCP provisioning?

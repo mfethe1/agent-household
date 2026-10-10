@@ -6,7 +6,7 @@ Every item below (A01–A25) is PENDING; see "Status and evidence recording". A 
 - A01: Costco/Amazon/Target per-retailer, per-channel capability matrix; channels qualified separately (warehouse/shipped/same-day; Amazon retail/Fresh); unsupported operations explicit.
   - Operations: discovery, product details, local price/availability, authenticated cart read/add/change/remove, checkout handoff, order status, itemized receipts and refunds.
   - Each cell records access requirements, source, verification time, supported geography, limits, license/terms constraints and evidence level: documented, source-inspected, live-tested or unavailable.
-- A02: Exact product/seller/pack/quantity/local fulfillment and fresh dietary-label evidence; unsafe/unknown match blocked. Drafts built from receipt history or calendar context never set attendance or hard dietary restrictions; both stay unknown until the user states them.
+- A02: Exact product/seller/pack/quantity/local fulfillment and fresh dietary-label evidence; unsafe/unknown match blocked. Attendance and hard dietary restrictions are never inferred from purchase history or calendar titles alone; without other user-authorized input they stay unknown until the user states them.
 - A03: All-in basket comparison exposes unknown costs and usable-unit/waste assumptions.
 - A04: Pre-existing cart lines preserved; concurrent user edit invalidates stale proposal; simultaneous restock drafts do not cause duplicate purchases.
 - A05: Expired approval, changed price/slot/seller/quantity and unwanted subscription mode block submission. Approval binds an explicit substitution policy; no sensitive line, including any line under a hard dietary restriction, is auto-substituted; saved brands, split templates and fulfillment preferences never satisfy the approval gate.
@@ -37,7 +37,7 @@ Every item below (A01–A25) is PENDING; see "Status and evidence recording". A 
   - Replaying an idempotency key has one effect; reusing a key with a different payload is rejected.
   - Each mutation yields a correlated action receipt.
   - A stale expected revision is rejected for every mutating record type, not only carts (A04).
-- A25: Connector resilience. Network retries bounded and connector rate limits enforced; unavailable or stale connector state shown with manual recovery; a crash between external action and local confirmation is reconciled against the authoritative external record before any retry and never blindly repeats the action (purchases: A07).
+- A25: Connector resilience. Network retries bounded and connector rate limits enforced; unavailable or stale connector state shown with manual recovery; a crash between external action and local confirmation is reconciled against the authoritative external record before any retry and never blindly repeats the action; an inconclusive reconciliation stays UNKNOWN (purchases: A07).
 
 A24 and A25 were appended without renumbering; ranges such as "A01–A23" elsewhere predate them.
 

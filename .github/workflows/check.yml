@@ -10,11 +10,12 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Superseded pull request runs are cancelled; every push to main keeps its run.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   # Minimum number of tests the suite must run. Raise it whenever tests are added.
-  MIN_TESTS: "62"
+  MIN_TESTS: "67"
 
 jobs:
   check:
@@ -51,8 +52,16 @@ jobs:
             echo "::error::MIN_TESTS must be a positive integer, got '$MIN_TESTS'"
             exit 1
           fi
+          # unittest reports on stderr; parse only that stream so test output on
+          # stdout cannot supply a fake summary line.
           log="$RUNNER_TEMP/unittest.log"
-          python -B -m unittest discover -s tests -v 2>&1 | tee "$log"
+          status=0
+          python -B -m unittest discover -s tests -v 2> "$log" || status=$?
+          cat "$log"
+          if [[ "$status" -ne 0 ]]; then
+            echo "::error::unittest exited with status $status"
+            exit "$status"
+          fi
           ran="$(sed -n 's/^Ran \([0-9][0-9]*\) tests\{0,1\} in .*/\1/p' "$log" | tail -n 1)"
           if [[ -z "$ran" ]]; then
             echo "::error::unittest printed no 'Ran N tests' line"
@@ -82,7 +91,8 @@ jobs:
         run: |
           set -euo pipefail
           log="$RUNNER_TEMP/basedpyright.log"
-          basedpyright --stats 2>&1 | tee "$log"
+          # -p pins the committed config; a pyrightconfig.json would otherwise win.
+          basedpyright -p pyproject.toml --stats 2>&1 | tee "$log"
           # A config that matches no files reports zero errors and exits 0.
           if ! grep -Eq '^Found [1-9][0-9]* source files?$' "$log"; then
             echo "::error::basedpyright analyzed no source files"
