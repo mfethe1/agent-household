@@ -10,6 +10,13 @@ For evidence runs, select a free local port instead of assuming 8000 is free.
 The empty editor supports nonempty titles, explicit positive finite quantities,
 Groceries and Other. Edit/remove needs and include/exclude them in the single
 basket review. Both surfaces derive from one in-memory state with stable IDs.
+Amount units are explicitly unspecified, each, pack, kg, g, lb, oz, L or mL.
+Unspecified displays as “unit not specified”; no title-based inference or unit
+conversion occurs. Fractional quantities remain valid. Optional package/size
+intent is text bounded to 120 characters (before trimming), not product matching.
+Legacy operation callers omitting unit/packageIntent get unspecified/empty;
+explicit invalid units and non-string/overlong package intent are rejected.
+Editing, basket inclusion/exclusion and removal preserve shared amount intent.
 Reload deliberately clears all needs and selections. Nothing is persisted.
 User text is rendered with textContent, never interpreted as HTML.
 
