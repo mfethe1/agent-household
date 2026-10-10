@@ -80,6 +80,7 @@ Every row is offline and synthetic, contract-only or research-only. None is live
 | #57 | `276c023` | `docs/research/receipt-wrangler-license-fit.md` | #56 (closed) under #9 | research only; nothing adopted; closes no ticket |
 | #60 | `6f387c0` | `docs/specs/receipt-draft-seam-contract.md` | #58, #59 (closed) under #9 | contract-only; closes no ticket |
 | #73 | `a88da54` | `preview/`: transient local mobile needs preview (in-memory only) | #67 (closed) under #63 | local preview; not M0, closes no ticket |
+| #74 | `90428e6` | `preview/`: need amount intent (quantity, units, package) | #63 | local preview; not M0, closes no ticket |
 
 Document status and pinned hashes: [docs/specs/INDEX.md](docs/specs/INDEX.md).
 
