@@ -1,10 +1,30 @@
-export function validateNeed({ title, quantity, category }) {
-  if (typeof title !== 'string' || !title.trim()) throw new Error('Enter a nonempty need title.');
+export const amountUnits = ['unspecified', 'each', 'pack', 'kg', 'g', 'lb', 'oz', 'L', 'mL'];
+export const packageIntentLimit = 120;
+
+function invalidField(field, message) {
+  throw Object.assign(new Error(message), { field });
+}
+
+export function validateNeed(fields) {
+  const { title, quantity, category } = fields;
+  const unit = Object.hasOwn(fields, 'unit') ? fields.unit : 'unspecified';
+  const packageIntent = Object.hasOwn(fields, 'packageIntent') ? fields.packageIntent : '';
+  if (typeof title !== 'string' || !title.trim()) invalidField('title', 'Enter a nonempty need title.');
   if (typeof quantity !== 'number' || !Number.isFinite(quantity) || quantity <= 0) {
-    throw new Error('Enter an explicit positive finite quantity.');
+    invalidField('quantity', 'Enter an explicit positive finite quantity.');
   }
-  if (!['Groceries', 'Other'].includes(category)) throw new Error('Choose Groceries or Other.');
-  return { title: title.trim(), quantity, category };
+  if (!['Groceries', 'Other'].includes(category)) invalidField('category', 'Choose Groceries or Other.');
+  if (!amountUnits.includes(unit)) invalidField('unit', 'Choose a supported amount unit.');
+  if (typeof packageIntent !== 'string' || packageIntent.length > packageIntentLimit) {
+    invalidField('packageIntent', `Package/size intent must be text of at most ${packageIntentLimit} characters.`);
+  }
+  return { title: title.trim(), quantity, category, unit, packageIntent: packageIntent.trim() };
+}
+
+export function formatNeed(need) {
+  const unit = need.unit === 'unspecified' ? 'unit not specified' : need.unit;
+  const packageText = need.packageIntent ? ` · package/size: ${need.packageIntent}` : '';
+  return `${need.quantity} · ${unit}${packageText} · ${need.category}`;
 }
 
 export function emptyState() {
@@ -50,14 +70,18 @@ export function mountPreview(document) {
     return node;
   };
   const announce = text => { get('status').textContent = text; };
+  const fieldIds = ['title', 'quantity', 'category', 'unit', 'packageIntent'];
+  const clearInvalid = () => {
+    get('error').textContent = '';
+    for (const id of fieldIds) get(id).removeAttribute('aria-invalid');
+  };
   const resetEditor = () => {
     editingId = null;
     get('need-form').reset();
     get('editor-heading').textContent = 'Add a need';
     get('submit').textContent = 'Add need';
     get('cancel').hidden = true;
-    get('error').textContent = '';
-    for (const id of ['title', 'quantity']) get(id).removeAttribute('aria-invalid');
+    clearInvalid();
   };
   const button = (text, action) => {
     const node = element('button', text);
@@ -74,7 +98,7 @@ export function mountPreview(document) {
     for (const need of state.needs) {
       const row = element('li');
       row.dataset.needId = String(need.id);
-      row.append(element('h3', need.title), element('p', `${need.quantity} · ${need.category}`));
+      row.append(element('h3', need.title), element('p', formatNeed(need)));
       const label = element('label');
       label.className = 'include';
       const checkbox = element('input');
@@ -93,7 +117,7 @@ export function mountPreview(document) {
       actions.append(button('Edit', () => {
         resetEditor();
         editingId = need.id;
-        for (const id of ['title', 'quantity', 'category']) get(id).value = need[id];
+        for (const id of fieldIds) get(id).value = need[id];
         get('editor-heading').textContent = 'Edit need';
         get('submit').textContent = 'Update need';
         get('cancel').hidden = false;
@@ -109,16 +133,19 @@ export function mountPreview(document) {
       get('needs').append(row);
     }
     for (const need of basketNeeds(state)) {
-      get('basket').append(element('li', `${need.title} — ${need.quantity} · ${need.category}`));
+      get('basket').append(element('li', `${need.title} — ${formatNeed(need)}`));
     }
   };
   get('need-form').addEventListener('submit', event => {
     event.preventDefault();
+    clearInvalid();
     try {
       const fields = {
         title: get('title').value,
         quantity: get('quantity').value.trim() ? Number(get('quantity').value) : NaN,
         category: get('category').value,
+        unit: get('unit').value,
+        packageIntent: get('packageIntent').value,
       };
       state = editingId === null ? addNeed(state, fields) : editNeed(state, editingId, fields);
       resetEditor();
@@ -127,11 +154,17 @@ export function mountPreview(document) {
       announce('Need updated in this session only.');
     } catch (error) {
       get('error').textContent = error.message;
-      const invalid = !get('title').value.trim() ? get('title') : get('quantity');
-      invalid.setAttribute('aria-invalid', 'true');
-      invalid.focus();
+      if (fieldIds.includes(error.field)) {
+        const invalid = get(error.field);
+        invalid.setAttribute('aria-invalid', 'true');
+        invalid.focus();
+      }
     }
   });
+  for (const id of fieldIds) {
+    get(id).addEventListener('input', clearInvalid);
+    get(id).addEventListener('change', clearInvalid);
+  }
   get('cancel').addEventListener('click', () => { resetEditor(); get('title').focus(); });
   get('review').addEventListener('click', () => { get('basket-heading').focus(); });
   render();

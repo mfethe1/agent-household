@@ -47,8 +47,24 @@
           <div><label for="quantity">Quantity (positive number)</label>
             <input id="quantity" name="quantity" type="number" step="any" required aria-describedby="error"></div>
           <div><label for="category">Category</label>
-            <select id="category" name="category"><option>Groceries</option><option>Other</option></select></div>
+            <select id="category" name="category" aria-describedby="error"><option>Groceries</option><option>Other</option></select></div>
+          <div><label for="unit">Amount unit</label>
+            <select id="unit" name="unit" aria-describedby="amount-help error">
+              <option value="unspecified">Unit not specified</option>
+              <option value="each">each</option>
+              <option value="pack">pack</option>
+              <option value="kg">kg</option>
+              <option value="g">g</option>
+              <option value="lb">lb</option>
+              <option value="oz">oz</option>
+              <option value="L">L</option>
+              <option value="mL">mL</option>
+            </select></div>
+          <div><label for="packageIntent">Package/size intent (optional)</label>
+            <input id="packageIntent" name="packageIntent" aria-describedby="package-help error" autocomplete="off"></div>
         </div>
+        <p id="amount-help" class="muted">Units are not inferred or converted. Fractional amounts are allowed.</p>
+        <p id="package-help" class="muted">Up to 120 characters, for example “500 g bag”. Intent only, not a matched product.</p>
         <p id="error" role="alert"></p>
         <div class="actions">
           <button id="submit" type="submit">Add need</button>
