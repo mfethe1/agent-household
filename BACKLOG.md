@@ -1,6 +1,6 @@
 # Delivery backlog
 
-Status: specification published; implementation not started here. Each ticket needs a named implementation owner and exact scope before work. None are complete.
+Status: partial implementation exists, not a delivered product. Main c0d685e9 includes pure offer/Target logic, synthetic transient mobile preview and enforced CI. PRs #93/#91 and issues #92/#89/#90/#94 establish CI/preview scope only; authenticated durable backend, live retailer, native devices and integrated money remain open. Historical items below remain OPEN unless independently evidenced in their canonical GitHub issue.
 
 ## Phase 0 — prerequisites
 - P0-01 OPEN: qualify required retailer/channel capability matrix (A01); owner unassigned.
@@ -32,3 +32,36 @@ Status: specification published; implementation not started here. Each ticket ne
 
 ## Status protocol
 OPEN → IN_PROGRESS → VERIFIED, with BLOCKED flagged separately and a named unblock task. Record DID / NEXT / NEED, exact commit and evidence. Specification publication closes no product ticket.
+
+## Current integrated product delivery queue
+
+Source: current human mandate in GOAL_PROMPT.md and AN-01–12 product contract.
+Parent owner: Airy/Hermes, originating Telegram thread 202308. Implementation owners
+must hold isolated worktree leases before dispatch; review/closure stays with parent.
+GitHub #1 tracks the program; do not duplicate #63/#64 or #75/#76/#87/#88.
+
+- AN-DESIGN OPEN: unified mobile/desktop visual contract and connected golden journey.
+  Depends on product contract; no live credentials or transport proof needed. Final state:
+  specified structured shopping, receipt, money and approval surfaces with recovery states.
+- AN-ACTION OPEN: typed agent tools and shared domain/action receipts, revision/idempotency
+  contracts. Depends on product contract and retained consent/security contracts. Final state:
+  source-reviewed contracts and synthetic action tests, not authorized live execution.
+- AN-CLIENT OPEN: architecture/capability decision for native iOS/Android plus desktop;
+  continue #63/#64; preview #89/#90 is accepted only as an interim synthetic surface.
+- AN-DURABLE OPEN: authenticated durable vertical slice and one real agent tool mutation.
+  Reconcile #75/#76/#87/#88, #77–79; no multi-user release until retained security gates pass.
+- AN-EXPENSE OPEN: receipt-to-reviewed-split domain slice, consent and balances.
+  Continue #9/#10/#61/#62/#80–82; synthetic deterministic contracts may progress independently.
+- AN-CONTINUITY OPEN: link shopping/order/receipt/expense provenance without inferred debt.
+  Continue #8/#11; integrate only accepted domain slices and preserve partial-failure states.
+- AN-LIVE OPEN: supported grocery-first retailer lane; continue #3/#66 and existing access
+  blockers. Required Costco/Amazon/Target remain; Instacart is a comparator/qualification
+  candidate, not silently added as an authorized integration or replacement.
+- AN-QUALIFY OPEN: physical iPhone/Android, cross-client recovery, accessibility, isolation,
+  restoration and predeclared competitive outcomes. Depends on delivered applicable slices.
+
+Each child ticket names AN/A/SPEC IDs, user journey/screen, initial/final durable state,
+agent authority, dependencies, one owner and independent verification. Local contract
+publication is not product acceptance. Unresolved transport gates stay open, but do not
+prevent admitted isolated visual/domain work. No purchase, enrollment, credential,
+deployment or payment authority is granted by this queue.

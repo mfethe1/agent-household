@@ -8,7 +8,7 @@ This is an outcome contract, not a claim that integrations already work. Begin b
 ## Required scope
 - Costco, Amazon and Target are the required shopping retailers. Qualify channels separately: warehouse versus shipped versus same-day, and Amazon retail versus Fresh. Other retailers are optional, not dependencies.
 - Grocery orders placed through the system and grocery purchases made elsewhere are receipt sources. Restaurant receipt capture and sharing are included; restaurant ordering is not.
-- Agent/MCP interfaces and a phone-friendly visual review surface share one backend and one authorization model. A chat assistant must not become a second ledger.
+- Agent tools, polished iOS and Android applications, and a first-class desktop web UI share one durable backend, domain state and authorization model. Responsive/PWA preview is an interim artifact, not native-client acceptance. A chat assistant must not become a second ledger.
 - Offer self-hosted operation. Public repository contains generic code, documentation and clearly labeled synthetic fixtures only. Runtime household data stays private and outside Git.
 
 ## Resolve the high-risk dependencies first
@@ -72,3 +72,23 @@ Measure user effort saved against the same user's manual workflow. Report basket
 
 ## First task for the executor
 Produce an evidence-backed capability matrix and reviewed transaction/consent model. Turn all acceptance scenarios into dependency-ordered small tickets. Implement the local receipt-upload-to-reviewed-expense vertical slice while separately qualifying a retailer handoff. Do not request new subscriptions, connect accounts, invite participants, purchase products or transfer money without fresh action-specific operator authorization.
+
+## Integrated product mandate
+
+The current destination is ONE agent-native household product combining shopping, orders,
+receipts, shared expenses and balances. The agent is an operational actor through typed,
+permissioned tools, not a chat-only interface. Humans and agents use the same validation,
+revision checks, evidence and action history. Purchase approval does not imply anyone's
+financial consent.
+
+Read docs/specs/agent-native-product-contract.md for AN-01–12, connected journey,
+client acceptance and dependency-ordered lanes. These augment A01–A23 and SPEC-00–10;
+no original security, accounting or retailer qualification requirement is waived.
+
+Rival Instacart and Splitwise on measured user outcomes, not a feature checklist or a
+claim of access to their services. Predeclare representative tasks, setup, recovery,
+active user time, correctness and participant comprehension before comparison.
+Native iOS/Android device evidence and first-class desktop workflows are required.
+A responsive preview, synthetic retailer results or a transport diagnostic cannot
+establish whole-product delivery. Existing gates remain; independent product lanes
+must not be monopolized by one unresolved transport investigation.

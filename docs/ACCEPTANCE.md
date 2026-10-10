@@ -1,6 +1,6 @@
 # Acceptance and evidence matrix
 
-All scenarios below are pending. A written requirement is not a passing test.
+All full-product scenarios below require source-bound evidence. A written requirement is not a passing test. Accepted interim preview/CI slices do not imply full-product acceptance.
 
 ## Retailers and shopping
 - A01: Costco/Amazon/Target per-channel capability matrix includes documented versus live-tested distinctions and unsupported operations.
@@ -41,3 +41,31 @@ Compare the same operator's manual workflow with system-assisted workflow on con
 
 ## Evidence rules
 Synthetic adversarial fixtures demonstrate logic only. Actual supported integrations require separately authorized live evidence. Public summaries redact user data, tokens and account/order identifiers. Each acceptance item records exact commit, test command/result, evidence location and reviewer. No item marked passed from an implementer's assertion alone.
+
+## Agent-native and client acceptance (additional, all pending)
+
+AN-01–12 are defined in docs/specs/agent-native-product-contract.md and retain A01–A23.
+- AN-01/02: exercise one permissioned agent action against durable state; the UI reopens
+  its result and action receipt. Test stale revision, retry, revocation and exception recovery.
+- AN-03/05: follow need → basket → exact approval → supported order/handoff → linked
+  receipt. Unsupported operations remain unavailable; partial failure never fabricates success.
+- AN-04/06: reviewed receipt → exact split → participant acceptance/dispute → explainable
+  balances → separately confirmed settlement record, including refunds and corrections.
+  Nonconsent does not become accepted debt; a record is not a payment transfer.
+- AN-07: physical iPhone build identity, persisted workflows, camera/fallback, secure
+  sessions, expiry, deep links, background recovery and accessibility evidence.
+- AN-08: physical Android equivalent with core-action/recovery parity.
+- AN-09: desktop authenticated persisted workflows, keyboard/screen-reader use,
+  cross-client synchronization and concurrent human/agent edits.
+- AN-10/11: actor/evidence/freshness/UNKNOWN UI; bounded authority with expiry and
+  revocation; isolation, idempotency, restore and sanitized observability.
+- AN-12: predeclared comparative tasks against both incumbents; report setup, active
+  time, recovery, corrections, failures, correctness, accessibility and comprehension.
+  Existing 25% active-time aim remains provisional until protocol freeze; no invented wins.
+
+Connected acceptance starts from an empty synthetic household: agent creates a need,
+human edits a basket, approved supported execution or explicit assisted handoff is tracked,
+a receipt is reviewed and a split proposed, each consenting participant accepts their
+obligation, and all clients reopen the same explainable balances. Agent authority,
+initial/final persisted states, evidence IDs, failures and recovery must be recorded.
+Synthetic paths prove logic only; live retailer and physical-device claims remain separate.
