@@ -50,6 +50,7 @@ fail by assertion, not an import/runtime error. None of these receipts exists ye
 | Ignore all code identities | `"        if event == \"call\" and frame.f_code is target:\n"` | `"        if event == \"call\" and False:\n"` | `test_real_predicate_results_and_events` |
 | Invoke twice | `"        return operation()\n"` | `"        operation()\n        return operation()\n"` | `test_operation_side_effects_once` |
 | Swallow RuntimeError | `"        return operation()\n"` | `"        try:\n            return operation()\n        except RuntimeError:\n            return None\n"` | `test_injected_exceptions_restore_and_recover` |
+| Deduplicate calls | `"            events.append(\"call\")\n"` | `"            if \"call\" not in events:\n                events.append(\"call\")\n"` | `test_each_call_observed_by_code_identity` |
 
 Names above belong to `RealCallProbeTests`. The swallow mutant intentionally
 violates the return contract; its behavioral kill must be the missing-exception
@@ -64,8 +65,9 @@ and actual total formatted code/test/document lines against the 399-line budget.
 Do not trim tests or claim an estimate as a measured count. Independent paper
 admission precedes any source authorization or new GitHub implementation task.
 
-Required later tools are `/Users/mfethe/.local/bin/python3.11`,
-`/Users/mfethe/.local/bin/ruff`, and `/opt/homebrew/bin/basedpyright`.
+Required later tools are the external shell variables `PYTHON` (Python 3.11),
+`RUFF`, and `BASEDPYRIGHT`, named as in `docs/TARGET_TCIN.md`; current
+repository check commands are in `CONTRIBUTING.md`.
 Run full formatting and isolated Ruff selection `E,F,W,I,UP,B,A,C4,SIM,RUF,ANN`
 with Python 3.11 targeting. Run Basedpyright strict over the full package and
 tests using external Python 3.11 configuration, without hidden exclusions or

@@ -136,6 +136,24 @@ class RealCallProbeTests(unittest.TestCase):
             self.assertEqual(events, [])
             self.assertIs(sys.gettrace(), prior)
 
+    def test_each_call_observed_by_code_identity(self) -> None:
+        code = is_target_tcin.__code__
+        twin = code.replace()
+        self.assertIsNot(twin, code)
+        self.assertEqual((twin.co_name, twin.co_qualname), ("is_target_tcin",) * 2)
+        with prior_trace() as prior:
+            events: list[str] = []
+            pair = probe_calls(
+                lambda: (is_target_tcin("12345678"), is_target_tcin("x")), code, events
+            )
+            twin_events: list[str] = []
+            result = probe_calls(lambda: is_target_tcin("12345678"), twin, twin_events)
+            self.assertEqual(pair, (True, False))
+            self.assertEqual(events, ["call", "call"])
+            self.assertIs(result, True)
+            self.assertEqual(twin_events, [])
+            self.assertIs(sys.gettrace(), prior)
+
     def test_empty_operation_restores(self) -> None:
         with prior_trace() as prior:
             events: list[str] = []

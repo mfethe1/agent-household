@@ -3,10 +3,14 @@
 import contextlib
 import copy
 import io
+import sys
 import threading
 import unittest
 from collections.abc import Iterator
-from typing import NoReturn
+from types import CodeType, FunctionType
+from typing import NoReturn, cast
+
+from real_call_probe import probe_calls
 
 from agent_household.json_tree import is_bounded_json_tree
 
@@ -49,8 +53,7 @@ class FloatSubclass(float):
     pass
 
 
-def chain(edges: int, shape: str) -> dict[str, object]:
-    leaf: object = None
+def chain(edges: int, shape: str, leaf: object = None) -> dict[str, object]:
     for index in range(edges - 1):
         leaf = (
             {"": leaf}
@@ -68,7 +71,44 @@ def nodes(total: int, shape: str) -> dict[str, object]:
     return {"a": [None] * (total - 4), "b": {"c": None}}
 
 
+def walk_code() -> CodeType:
+    """The traversal the shipped guard calls inside its try, via its own globals."""
+    bindings = cast("dict[str, object]", is_bounded_json_tree.__globals__)
+    return cast("FunctionType", bindings["_walk"]).__code__
+
+
 class JsonTreeTests(unittest.TestCase):
+    def probe_walk(self, failure: type[BaseException]) -> tuple[bool, str]:
+        """Raise `failure()` as traversal starts; return result and captured output."""
+        document: dict[str, object] = {"a": [1]}
+        previous = sys.gettrace()
+        events: list[str] = []
+        stdout, stderr = io.StringIO(), io.StringIO()
+        try:
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                result = probe_calls(
+                    lambda: is_bounded_json_tree(document), walk_code(), events, failure
+                )
+        finally:
+            self.assertEqual(events, ["call"])
+            self.assertIs(sys.gettrace(), previous)
+            self.assertEqual(document, {"a": [1]})
+            self.assertIs(is_bounded_json_tree(document), True)
+        return result, stdout.getvalue() + stderr.getvalue()
+
+    def test_traversal_exceptions_fail_closed(self) -> None:
+        for failure in (RuntimeError, MemoryError):
+            with self.subTest(failure=failure.__name__):
+                self.assertEqual(self.probe_walk(failure), (False, ""))
+
+    def test_traversal_cancellation_propagates(self) -> None:
+        for failure in (KeyboardInterrupt, SystemExit):
+            with self.subTest(failure=failure.__name__):
+                with self.assertRaises(failure) as caught:
+                    self.probe_walk(failure)
+                self.assertIs(type(caught.exception), failure)
+                self.assertEqual(caught.exception.args, ())
+
     def test_roots_and_all_native_values(self) -> None:
         valid: list[object] = [{}, {"": [None, True, False, 0, -1, 1.5, "", {}, []]}]
         for value in valid:
@@ -120,6 +160,18 @@ class JsonTreeTests(unittest.TestCase):
         for value in (float("nan"), float("inf"), -float("inf")):
             self.assertIs(is_bounded_json_tree({"": value}), False)
 
+    def test_integer_limits_without_decimal_conversion(self) -> None:
+        bound = 10**4096
+        digits = sys.get_int_max_str_digits()
+        sys.set_int_max_str_digits(640)
+        try:
+            accepted = [is_bounded_json_tree({"": n}) for n in (bound - 1, 1 - bound)]
+            rejected = [is_bounded_json_tree({"": n}) for n in (bound, -bound)]
+        finally:
+            sys.set_int_max_str_digits(digits)
+        self.assertEqual(accepted, [True, True])
+        self.assertEqual(rejected, [False, False])
+
     def test_depth_all_layouts(self) -> None:
         for shape in ("dict", "list", "mixed"):
             for edges in (31, 32, 33):
@@ -127,6 +179,14 @@ class JsonTreeTests(unittest.TestCase):
                     self.assertIs(
                         is_bounded_json_tree(chain(edges, shape)), edges <= 32
                     )
+
+    def test_depth_empty_container_leaves(self) -> None:
+        for shape in ("dict", "list", "mixed"):
+            for leaf in ("list", "dict"):
+                for edges in (32, 33):
+                    with self.subTest(shape=shape, leaf=leaf, edges=edges):
+                        document = chain(edges, shape, [] if leaf == "list" else {})
+                        self.assertIs(is_bounded_json_tree(document), edges <= 32)
 
     def test_nodes_all_layouts_and_keys_excluded(self) -> None:
         for shape in ("dict", "list", "mixed"):

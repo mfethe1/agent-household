@@ -6,8 +6,9 @@ Invalid values raise `ValueError("invalid Target product URL")` without echoing 
 
 The only accepted URL form is `https://www.target.com/p/<slug>/-/A-<tcin>`.
 TCIN is eight ASCII decimal digits matching the separately supplied identifier.
-Slug has 1–160 lowercase ASCII alphanumeric characters and single internal
-hyphens separating nonempty segments. Total URL length is at most 512 characters.
+Slug is 1–160 characters, hyphens included: lowercase ASCII alphanumeric
+segments separated by single internal hyphens. Total URL length is at most
+512 characters.
 Queries (including preselect), fragments, credentials, explicit ports, encodings,
 Unicode, whitespace and alternate hosts or paths are rejected.
 
@@ -16,3 +17,11 @@ Tests contain synthetic URL cases; they prove only deterministic validation.
 It does not fetch or parse Target content, observe price/stock/labels, produce an
 Offer, authorize ordering, or integrate private household data. The real byte
 parser, production transport and live qualification remain separate pending work.
+
+## Provenance
+
+The canonical URL grammar above, including its exactly-eight-ASCII-digit TCIN,
+has no recorded source or evidence level (GOAL_PROMPT.md: documented,
+source-inspected, live-tested or unavailable) in this repository. Both are
+unverified assumptions until the P0-01 capability matrix (`docs/specs/SPEC-01.md`)
+records one; passing tests show only that this helper enforces them.

@@ -91,6 +91,11 @@ class SelectionTests(unittest.TestCase):
             ("unknown", {"module_type": "Other", "version": None}, False),
             ("nonstring-before-bad-version", {"module_type": 7, "version": []}, False),
             ("nonzero-ignores-data", selected(version=1, module_data=None), False),
+            ("negative-version", selected(version=-1), False),
+            ("empty-type", selected(module_type=""), False),
+            ("substring-type", selected(module_type="Title"), False),
+            ("prefix-type", selected(module_type="ProductDetailTitleV2"), False),
+            ("suffix-type", selected(module_type="XProductDetailTitle"), False),
             ("unknown-generic", {"module_data": {"title": "raw"}}, False),
             (
                 "unknown-type-generic",
