@@ -24,6 +24,7 @@ Kinds: governing contract, proposed model, design paper, module doc, research, a
 | `docs/specs/receipt-review-contract.md` | design paper | #50 → #52 / `06894d4` | Merged contract-only design, recorded on #9 (comment 6077106592) as the accepted receipt-review command/result design. #50 closed (completed). Not `SPEC-07.md`; #9 is OPEN; no implementation. |
 | `docs/specs/receipt-upload-extraction-contract.md` | design paper | #53 → #55 / `0026aa2` | Merged contract-only design, recorded on #9 (comment 6078541427). #53 closed (completed). Not `SPEC-07.md`; #9 is OPEN; no implementation. |
 | `docs/specs/receipt-draft-seam-contract.md` | design paper | #58 (blocker #59) → #60 / `6f387c0` | Merged contract-only design. #58 and #59 closed (completed). #9 comment 6079742096 records "DELIVERED_CONTRACT_ONLY". Implementation admission #61 and #9 are OPEN. |
+| `docs/specs/agent-native-product-contract.md` | governing contract | #95 / `5661d01` | Reconciled requirement candidate (its own status line); augments GOAL_PROMPT.md, A01–A23 and SPEC-00–10. Implementation and runtime acceptance OPEN. |
 | `docs/specs/SPEC-01.md` | design paper | #3 SPEC-01 → this change | Capability matrix draft (this change, pending review). #3 is OPEN; A01 is not passed. |
 | `docs/specs/INDEX.md` | index | required by #2–#12 → this change | This index (this change, pending review). |
 | `docs/reviews/2026-10-gap-analysis.md` | audit | this change | Audit report: 46 verified and 9 rejected gaps. Not a ticket; closes nothing. |

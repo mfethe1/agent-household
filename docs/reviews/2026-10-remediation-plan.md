@@ -86,6 +86,10 @@ Dispatch: `#N` = existing or filed issue; `fix PR` = #69.
 | 2.6 | G12(b) G13 | Rewrite CONTRIBUTING as a short process (authority, claim, gates, size and review rules) after D-008, D-009 and D-011. | Coordinator | CONTRIBUTING names the ticket system, claim mechanism and review record | follow-up docs PR |
 | 2.7 | G45 G49 G43 | Post-merge notes: Quote offer reference and evaluation time (#4); confirm the three Target assumptions (#24); reuse the X2 rows (#33). | Coordinator | Notes read back | #4, #24, #33 (one line each, when touched) |
 
+## Update after #95 (2026-10-10)
+
+#95 merged an agent-native product contract and rewrote GOAL_PROMPT.md's continuation section. It records, in GOAL_PROMPT.md: new Instacart applications BLOCKED absent verified existing access (bears on D-001); no calendar writes granted (D-005); native iOS/Android plus desktop as the final client target with the preview as interim (part of D-006/D-010); and provider-independent agent tools. Its BACKLOG delivery queue routes #77–#79 under AN-DURABLE and #80–#82 under AN-EXPENSE. G05 is therefore partly resolved; the remaining D-items in #70 are still open.
+
 ## Owner decisions
 
 Answer these on #70; the agreed answers then go into `docs/DECISIONS.md`.
