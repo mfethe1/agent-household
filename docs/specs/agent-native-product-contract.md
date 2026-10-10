@@ -131,6 +131,26 @@ not inferred here. Next: admit one dependency-ready slice, verify its saved stat
 - SPEC-09 (#11): linked postacceptance adjustments, refund/reversal, reported/confirmed settlement and stable replay → A16/17/20, AN04/11, gates2/4; no transfer execution.
 - SPEC-10 (#12): connector checkpoints/gaps/revocation/fallback, isolation/export, self-hosted setup/restore/retention, accessibility and frozen pilot → A12/18–23, AN07–12, gates3–6; security stays in SPEC00, not deferred.
 
+### Frozen full-package obligations (not replaced by the summaries above)
+
+The full authored issue bodies below are retained requirements, not just titles or links. Pin SHA-256 over the UTF-8 body returned by GitHub (not rendered HTML). Preserve the retrieved body with the existing external evidence inventory; if the live body changes or cannot be retrieved, use the hash-matching saved source, record the discrepancy and resolve it before admission. A mutable URL alone is insufficient. No fifth repository document, private records or new authority is introduced.
+For every package, retain **all clauses** of Initial state, Scope / allowed files, Required product scope (including package-specific dependencies, decisions, evaluations and component/license-fit checks), Final correct state, Checks and Delivery and closure gate. The existing source-line inventory must map each clause to its package pin and required evidence; summary wording cannot drop tests, dependencies or final-state obligations. Scope approval is not product acceptance.
+The final package specification `docs/specs/SPEC-xx.md` must still include actors/stories, scope/exclusions, resolved or explicitly blocked decisions, architecture contracts, unknown/error states, authorization/privacy, dependency DAG, Given/When/Then cases mapped to A01–23, exact verification seams, recovery and compatibility. A fresh independent reviewer checks the exact revision against the original goal and transaction contract. The package files remain undelivered until independently evidenced, not created by this reference.
+Each implementation child still requires allowed paths, dependency issue numbers, initial/final correct states, executable commands, negative/edge cases, cleanup and whole-product integration checks; create and read back child issues only under existing bounded publication authority. Validate links, traceability, privacy/licenses and cross-package consistency; record exact commit/review. Retain separate access/approval blockers, public independently authored material and labeled synthetic fixtures. No purchase/account-cart mutation/deployment/enrollment/invitation/transfer/outreach authority follows. Worker reply, transport success or an unverified PR cannot close an issue. Verify current implementation ownership from leases; the original designated-writer text is not a new assignment.
+| Package | Full source | UTF-8 body SHA-256 |
+|---|---|---|
+| SPEC-00 | [#2](https://github.com/mfethe1/agent-household/issues/2) | `8d95ae7d798480cf36571d0de3fea9c7300153ac337f7ffc09e39cdd147bd5e1` |
+| SPEC-01 | [#3](https://github.com/mfethe1/agent-household/issues/3) | `8d7b6e8b3906b0942af649bc28a895499379787661ed60651cc0e508883413f5` |
+| SPEC-02 | [#4](https://github.com/mfethe1/agent-household/issues/4) | `3c3ff1c6199c1a5cc6627ff5091536b207ede7c8695e131a031287250116ed74` |
+| SPEC-03 | [#5](https://github.com/mfethe1/agent-household/issues/5) | `f430859a04bafc8008c904755712aafe76c931377b114099b68f95293a78afaa` |
+| SPEC-04 | [#6](https://github.com/mfethe1/agent-household/issues/6) | `ab4112b0895ac433dfd14946ade7c2b0f134eb5331e1b0a7f51b2704c7a11957` |
+| SPEC-05 | [#7](https://github.com/mfethe1/agent-household/issues/7) | `5ba1e7c4a73dbb5860040cac672377abb0ac95e2f11a5548a3bc2428a0d2c0e8` |
+| SPEC-06 | [#8](https://github.com/mfethe1/agent-household/issues/8) | `7991aff01a61453df1fb3d469680da91fbbd10e460083ee1f0248cfa0c98bd70` |
+| SPEC-07 | [#9](https://github.com/mfethe1/agent-household/issues/9) | `ef3f9bf5e5e7966d31c63850e58fbfe668676cd2d55b8e1f69b76f69f96c50cd` |
+| SPEC-08 | [#10](https://github.com/mfethe1/agent-household/issues/10) | `489d186f787f06060b85d8c542a35c41a34c12b381153fb2f5c913a813780968` |
+| SPEC-09 | [#11](https://github.com/mfethe1/agent-household/issues/11) | `b1849c2a8d73aa6c44aa227b1d17c70c603a633194d1f8fab584d6bcae87cf9b` |
+| SPEC-10 | [#12](https://github.com/mfethe1/agent-household/issues/12) | `8f50624d6ea412cda54777396948da9195e535b28facb1dd41d1d5d00c218c5a` |
+
 Existing #63's PWA proposal is an interim scope, superseded only as a final-client destination
 by native AN-07/08. #64's bounded authoring recovery and original full coverage remain.
 Reuse CLOSED #75's accepted narrow paper evidence; full backend admission is still OPEN.

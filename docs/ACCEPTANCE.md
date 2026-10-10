@@ -118,6 +118,35 @@ existing checks/progress; no partial review or prerequisite count substitutes fo
    corrections and understanding: 100% correct approved baskets/receipts/splits, zero unintended
    effects and reduced active work/handoffs. Disclose incumbent advantages, not feature parity.
 
+### Original acceptance case → required gate evidence (all OPEN)
+
+Each row requires every clause of the unchanged A item above, with positive and refusal/edge cases, exact-build initial/final states and independent evidence. Gate numbers reference this document; topic-level coverage alone fails. Record owner, evidence location and unmet dependencies per row in the existing saved inventory; do not assign ownership from this table.
+| Case | Required gates | Evidence case that must not be lost |
+|---|---|---|
+| A01 | 1,5 | Each named retailer/channel's documented/live/unsupported operation matrix. |
+| A02 | 2,4,5,6 | Exact seller/pack/quantity/local fulfillment; fresh labels; unknown/unsafe refusal. |
+| A03 | 2,6 | All-in comparison with unknown costs and usable-unit/waste assumptions. |
+| A04 | 2,4,5 | Existing cart preserved; concurrent edit invalidation; simultaneous drafts cannot duplicate purchases. |
+| A05 | 2,4,5 | Expiry and each price/slot/seller/quantity/subscription change block submission. |
+| A06 | 3,5 | Actual required-retailer phone handoff, reviewed basket and separate exact checkout approval. |
+| A07 | 4,5 | Lost confirmation/crash, UNKNOWN and authoritative reconciliation before retry. |
+| A08 | 2,5 | Shipment/weight/substitution/cancellation/return with distinct order, receipt and charge evidence. |
+| A09 | 2,3,4 | Actual multi-page image/digital capture; original provenance; owner/uploader/payers distinct. |
+| A10 | 2,3 | OCR uncertainty/total corrections and pre-tip versus final restaurant spend. |
+| A11 | 2,4 | Reimport/photo/revision dedup versus two legitimate identical purchases. |
+| A12 | 3,4,5 | Qualified receipt source; incomplete transaction source; expired token/gap/fallback. |
+| A13 | 2,4 | Every listed split/payment mode; rounding and tax/tip/fee/discount conservation. |
+| A14 | 2,4 | Unknown payer/unpaid remainder explicit; no fabricated paid amount. |
+| A15 | 2,4 | Proposal/acceptance/dispute/departure/guest claim; nonconsent never accepted debt. |
+| A16 | 2,4 | Settled edit/partial refund/reversal/participant confirmation; preserved audit. |
+| A17 | 2,4,6 | Gross spend/net allocation/reimbursement separate; unauthorized currency netting refused. |
+| A18 | 3,4 | Negative record/attachment/export/tool authorization, guests and shared retailer accounts. |
+| A19 | 3,4 | Hostile receipt/product text, unsafe/oversize file rejection and processing disclosure. |
+| A20 | 4 | Isolated restored ledger/attachments identical; secret-free logs/public evidence. |
+| A21 | 4 | Unlink/revocation/export/retention/deletion/backup expiry against published policy. |
+| A22 | 3,4 | Phone/keyboard/screen-reader upload/correct/allocate/approve/dispute; interrupted recovery. |
+| A23 | 3,4 | Fresh self-hosted install from instructions; missing integrations explicitly fail. |
+
 The provisional 25% aim above is not a substitute for required demonstrated reductions.
 Preview/history analysis, local tests, hosted CI, physical devices, live retailer continuity
 and measured outcomes are separate claims. Protect identities, schedules, diet/health data
