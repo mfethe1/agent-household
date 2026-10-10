@@ -27,7 +27,7 @@ Kinds: governing contract, proposed model, design paper, module doc, research, a
 | `docs/specs/SPEC-01.md` | design paper | #3 SPEC-01 → this change | Capability matrix draft (this change, pending review). #3 is OPEN; A01 is not passed. |
 | `docs/specs/INDEX.md` | index | required by #2–#12 → this change | This index (this change, pending review). |
 | `docs/reviews/2026-10-gap-analysis.md` | audit | this change | Audit report: 46 verified and 9 rejected gaps. Not a ticket; closes nothing. |
-| `docs/reviews/2026-10-remediation-plan.md` | audit | this change | Remediation plan and dispatch status for the audit (#70–#72 filed). Not a ticket; closes nothing. |
+| `docs/reviews/2026-10-remediation-plan.md` | audit | this change | Remediation plan and dispatch status for the audit (#70–#72, #77–#83 filed). Not a ticket; closes nothing. |
 
 ## Pinned paper hashes
 
