@@ -9,6 +9,7 @@ export function validateNeed(fields) {
   const { title, quantity, category } = fields;
   const unit = Object.hasOwn(fields, 'unit') ? fields.unit : 'unspecified';
   const packageIntent = Object.hasOwn(fields, 'packageIntent') ? fields.packageIntent : '';
+  const tcin = Object.hasOwn(fields, 'tcin') ? fields.tcin : '';
   if (typeof title !== 'string' || !title.trim()) invalidField('title', 'Enter a nonempty need title.');
   if (typeof quantity !== 'number' || !Number.isFinite(quantity) || quantity <= 0) {
     invalidField('quantity', 'Enter an explicit positive finite quantity.');
@@ -18,7 +19,10 @@ export function validateNeed(fields) {
   if (typeof packageIntent !== 'string' || packageIntent.length > packageIntentLimit) {
     invalidField('packageIntent', `Package/size intent must be text of at most ${packageIntentLimit} characters.`);
   }
-  return { title: title.trim(), quantity, category, unit, packageIntent: packageIntent.trim() };
+  if (typeof tcin !== 'string' || (tcin !== '' && (tcin.length !== 8 || !/^[0-9]{8}$/.test(tcin)))) {
+    invalidField('tcin', 'Enter exactly 8 ASCII digits for TCIN, or leave it empty.');
+  }
+  return { title: title.trim(), quantity, category, unit, packageIntent: packageIntent.trim(), tcin };
 }
 
 export function formatNeed(need) {
@@ -56,13 +60,46 @@ export function removeNeed(state, id) {
   return { ...state, needs: state.needs.filter(need => need.id !== id) };
 }
 
+// Recovery is bound to the exact post-removal state, not stored in emptyState.
+// Every successful add/edit/selection creates a new state and invalidates it.
+export function removeNeedWithRecovery(state, id) {
+  const next = removeNeed(state, id);
+  const index = state.needs.findIndex(need => need.id === id);
+  return { state: next, recovery: { state: next, index, need: { ...state.needs[index] } } };
+}
+
+export function restoreRemovedNeed(state, recovery) {
+  if (!recovery || recovery.state !== state || state.needs.some(need => need.id === recovery.need.id)) {
+    return state;
+  }
+  const needs = [...state.needs];
+  needs.splice(recovery.index, 0, { ...recovery.need });
+  return { ...state, needs };
+}
+
 export function basketNeeds(state) {
   return state.needs.filter(need => need.included);
+}
+
+export function formatHandoff(state) {
+  const needs = basketNeeds(state);
+  if (!needs.length) return 'No needs included. Nothing to hand off.';
+  const lines = needs.map(need => {
+    const unit = need.unit === 'unspecified' ? 'unit not specified' : need.unit;
+    return `${need.title} — ${need.quantity} ${unit} · package/size: ${need.packageIntent || 'none'} · TCIN: ${need.tcin || 'none'} · category: ${need.category}`;
+  });
+  return [
+    'Basket needs — intent only, not matched products. No dietary-safety or availability claim.',
+    'TCIN as entered — not verified against Target. You perform all lookup, matching and purchase yourself.',
+    ...lines,
+  ].join('\n');
 }
 
 export function mountPreview(document) {
   let state = emptyState();
   let editingId = null;
+  let recovery = null;
+  let prepared = null;
   const get = id => document.getElementById(id);
   const element = (tag, text) => {
     const node = document.createElement(tag);
@@ -70,7 +107,7 @@ export function mountPreview(document) {
     return node;
   };
   const announce = text => { get('status').textContent = text; };
-  const fieldIds = ['title', 'quantity', 'category', 'unit', 'packageIntent'];
+  const fieldIds = ['title', 'quantity', 'category', 'unit', 'packageIntent', 'tcin'];
   const clearInvalid = () => {
     get('error').textContent = '';
     for (const id of fieldIds) get(id).removeAttribute('aria-invalid');
@@ -91,6 +128,14 @@ export function mountPreview(document) {
     return node;
   };
   const render = () => {
+    if (prepared?.state !== state) {
+      prepared = null;
+      get('handoff').hidden = true;
+      get('handoff-text').textContent = '';
+      get('copy-handoff').disabled = true;
+    }
+    if (recovery?.state !== state) recovery = null;
+    get('undo-removal').hidden = recovery === null;
     get('needs').replaceChildren();
     get('basket').replaceChildren();
     get('needs-empty').hidden = state.needs.length > 0;
@@ -123,11 +168,11 @@ export function mountPreview(document) {
         get('cancel').hidden = false;
         get('title').focus();
       }), button('Remove', () => {
-        state = removeNeed(state, need.id);
+        ({ state, recovery } = removeNeedWithRecovery(state, need.id));
         if (editingId === need.id) resetEditor();
         render();
-        get('title').focus();
-        announce('Need removed from needs and basket.');
+        get('undo-removal').focus();
+        announce('Need removed from needs and basket. Undo removal is available until the next change.');
       }));
       row.append(label, actions);
       get('needs').append(row);
@@ -146,6 +191,7 @@ export function mountPreview(document) {
         category: get('category').value,
         unit: get('unit').value,
         packageIntent: get('packageIntent').value,
+        tcin: get('tcin').value,
       };
       state = editingId === null ? addNeed(state, fields) : editNeed(state, editingId, fields);
       resetEditor();
@@ -165,6 +211,42 @@ export function mountPreview(document) {
     get(id).addEventListener('input', clearInvalid);
     get(id).addEventListener('change', clearInvalid);
   }
+  get('undo-removal').addEventListener('click', () => {
+    const restored = restoreRemovedNeed(state, recovery);
+    if (restored === state) return;
+    state = restored;
+    render();
+    get('review').focus();
+    announce('Need restored to its original position and basket selection. Changes are not saved.');
+  });
+  get('prepare-handoff').addEventListener('click', () => {
+    prepared = { state, text: formatHandoff(state) };
+    get('handoff-text').textContent = prepared.text;
+    get('handoff').hidden = false;
+    get('copy-handoff').disabled = basketNeeds(state).length === 0;
+    get('handoff-heading').focus();
+    announce(basketNeeds(state).length ? 'Text handoff prepared. Review before copying.' : prepared.text);
+  });
+  get('copy-handoff').addEventListener('click', async () => {
+    const snapshot = prepared;
+    if (!snapshot || snapshot.state !== state || !basketNeeds(state).length) return;
+    get('copy-handoff').disabled = true;
+    announce('Copying handoff text…');
+    try {
+      const clipboard = document.defaultView?.navigator?.clipboard;
+      if (!clipboard?.writeText) throw new Error('Clipboard unavailable.');
+      await clipboard.writeText(snapshot.text);
+      if (prepared === snapshot) announce('Handoff text copied. No retailer verification or purchase performed.');
+    } catch {
+      if (prepared === snapshot) {
+        get('handoff-text').focus();
+        get('handoff-text').select();
+        announce('Clipboard unavailable or denied. Text selected; copy it manually.');
+      }
+    } finally {
+      if (prepared === snapshot) get('copy-handoff').disabled = false;
+    }
+  });
   get('cancel').addEventListener('click', () => { resetEditor(); get('title').focus(); });
   get('review').addEventListener('click', () => { get('basket-heading').focus(); });
   render();

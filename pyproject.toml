@@ -1,29 +1,15 @@
-# Project metadata and check configuration only. There is no build system;
-# nothing here is installed. Run the checks from the repository root as
-# CONTRIBUTING.md describes; tool versions are pinned in requirements-dev.txt.
-
-[project]
-name = "agent-household"
-version = "0.0.0"
-requires-python = ">=3.11"
-license = "MIT"
-dependencies = []
-
 [tool.ruff]
+required-version = "==0.16.8"
 target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "A", "C4", "SIM", "RUF", "ANN"]
 
-[tool.ruff.format]
-# Ruff also formats Python code blocks in Markdown by default. Keep formatting
-# to Python sources: hash-pinned papers under docs/ must never be rewritten.
-exclude = ["*.md"]
-
 [tool.basedpyright]
 include = ["agent_household", "tests"]
-# The import roots `unittest discover -s tests` gives at runtime: the
-# repository root and tests/ (sibling helpers such as hostile_callbacks).
-extraPaths = [".", "tests"]
 pythonVersion = "3.11"
 typeCheckingMode = "strict"
+executionEnvironments = [
+  { root = "tests", extraPaths = [".", "tests"] },
+  { root = "." },
+]
