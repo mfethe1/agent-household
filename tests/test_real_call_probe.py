@@ -3,7 +3,7 @@
 import io
 import sys
 import unittest
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from types import FrameType
 from typing import cast
@@ -15,7 +15,7 @@ from agent_household.target_tcin import is_target_tcin
 
 
 @contextmanager
-def prior_trace() -> Iterator[TraceHook]:
+def prior_trace() -> Generator[TraceHook, None, None]:
     """Keep test failures and restoration mutants isolated from the runner."""
     original = cast("TraceHook | None", sys.gettrace())
 

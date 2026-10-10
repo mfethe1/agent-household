@@ -6,7 +6,7 @@ import inspect
 import io
 import sys
 import unittest
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from types import FrameType
 from typing import cast
@@ -39,7 +39,7 @@ def selected(**fields: object) -> dict[str, object]:
 
 
 @contextmanager
-def prior_trace() -> Iterator[TraceHook]:
+def prior_trace() -> Generator[TraceHook, None, None]:
     original = cast("TraceHook | None", sys.gettrace())
 
     def prior(_frame: FrameType, _event: str, _arg: object) -> TraceHook:
