@@ -1,0 +1,90 @@
+name: check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Minimum number of tests the suite must run. Raise it whenever tests are added.
+  MIN_TESTS: "62"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install check tools
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check -r requirements-dev.txt
+          python --version
+          ruff --version
+          basedpyright --version
+
+      - name: Tests (minimum count, no skips)
+        run: |
+          set -euo pipefail
+          if ! [[ "$MIN_TESTS" =~ ^[1-9][0-9]*$ ]]; then
+            echo "::error::MIN_TESTS must be a positive integer, got '$MIN_TESTS'"
+            exit 1
+          fi
+          log="$RUNNER_TEMP/unittest.log"
+          python -B -m unittest discover -s tests -v 2>&1 | tee "$log"
+          ran="$(sed -n 's/^Ran \([0-9][0-9]*\) tests\{0,1\} in .*/\1/p' "$log" | tail -n 1)"
+          if [[ -z "$ran" ]]; then
+            echo "::error::unittest printed no 'Ran N tests' line"
+            exit 1
+          fi
+          if [[ "$ran" -lt "$MIN_TESTS" ]]; then
+            echo "::error::ran $ran tests; MIN_TESTS is $MIN_TESTS"
+            exit 1
+          fi
+          if grep -Eq '^(OK|FAILED) \(.*skipped=[0-9]+' "$log"; then
+            echo "::error::tests were skipped; skips are not allowed"
+            exit 1
+          fi
+          echo "ran $ran tests (MIN_TESTS $MIN_TESTS), none skipped"
+
+      - name: Ruff lint
+        run: |
+          set -euo pipefail
+          ruff check .
+
+      - name: Ruff format
+        run: |
+          set -euo pipefail
+          ruff format --check .
+
+      - name: Basedpyright (strict)
+        run: |
+          set -euo pipefail
+          log="$RUNNER_TEMP/basedpyright.log"
+          basedpyright --stats 2>&1 | tee "$log"
+          # A config that matches no files reports zero errors and exits 0.
+          if ! grep -Eq '^Found [1-9][0-9]* source files?$' "$log"; then
+            echo "::error::basedpyright analyzed no source files"
+            exit 1
+          fi
