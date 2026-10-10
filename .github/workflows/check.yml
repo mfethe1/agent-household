@@ -145,7 +145,7 @@ jobs:
                   raise SystemExit(f'Missing/ambiguous TAP summary: {key}')
               counts[key] = int(matches[0])
           print(f'Node counts: {counts}', flush=True)
-          if (counts['tests'] < 10 or counts['pass'] != counts['tests']
+          if (counts['tests'] < 17 or counts['pass'] != counts['tests']
                   or any(counts[key] for key in ('fail', 'cancelled', 'skipped', 'todo'))):
               raise SystemExit('Node count/result/skip/todo gate failed')
           PY
