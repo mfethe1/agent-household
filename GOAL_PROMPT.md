@@ -3,12 +3,43 @@
 ## Mission
 Build an open-source, agent-native household shopping and shared-expense system. Help users plan and prepare Costco, Amazon and Target purchases, retain grocery and restaurant receipts, and allocate costs accurately among consenting participants. Save users effort without surrendering control of purchases, sensitive data or shared debts.
 
+## Governing continuation contract
+Continue the existing program under Airy, session `20261006_082642_52e76a4d`, with
+the existing 200-turn budget, owners, queue and accepted PR93/91 foundation preserved.
+The protected checkout stays read-only. Michael's authored inline acceptance contract
+replaces the unreadable source-file dependency, not the goal or authorization boundaries.
+Its sanitized requirements and six finite completion gates are recorded in
+`docs/specs/agent-native-product-contract.md` and `docs/ACCEPTANCE.md`.
+
+Prioritize scoped history + user-controlled preferences + confirmed stock/needs →
+explainable cart → corrections/feedback → exact human approval → supported retailer
+handoff/order/status → reconciled receipt → reviewed split → participant consent/dispute →
+explainable balances/settlement records → improved next cart. Learning must persist and
+change the next proposal; the current preview/history analysis is only foundation.
+Help families meet user-chosen healthier-eating goals and remaining all-in budgets through
+weekly meals, portions, overlapping ingredients, pantry/freezer checks, leftovers and waste
+reduction, or explicitly report infeasibility. No medical prescriptions or benefit claims.
+
+Michael's agents/harnesses use provider-independent documented APIs/MCP tools; ChatGPT
+and Claude are not required gateways. Model choice cannot change identity, approval,
+validation, budget, idempotency, audit, undo or reconciliation rules. Genuine order APIs,
+cart/shoppable links, manual handoffs and unavailable access are distinct capabilities.
+New Instacart applications are BLOCKED absent independently verified existing approved
+access; no MVP dependency, signup, outreach or bypass. No delivery network/payment processor.
+The existing single pickup-first fulfillment research/proposal lane remains parallel and
+bounded, not a dependency for independently admitted receipt/expense/domain work.
+
+This continuation grants no deployment, purchases/subscriptions/payments/transfers,
+calendar writes, invitations/enrollment/contact, credential setup/transfer, permission or
+private-access expansion, paid inference or unrelated changes. Separately granted pickup/
+calendar authorities remain scoped to their originating session. No install-lock bypass.
+
 This is an outcome contract, not a claim that integrations already work. Begin by reading README.md, docs/TRANSACTION_MODEL.md, docs/ACCEPTANCE.md and BACKLOG.md. Work in small, independently verifiable slices. Reuse qualified components instead of recreating meal planning, identity or accounting unnecessarily; inspect licenses before reuse.
 
 ## Required scope
 - Costco, Amazon and Target are the required shopping retailers. Qualify channels separately: warehouse versus shipped versus same-day, and Amazon retail versus Fresh. Other retailers are optional, not dependencies.
 - Grocery orders placed through the system and grocery purchases made elsewhere are receipt sources. Restaurant receipt capture and sharing are included; restaurant ordering is not.
-- Agent/MCP interfaces and a phone-friendly visual review surface share one backend and one authorization model. A chat assistant must not become a second ledger.
+- Agent tools, polished iOS and Android applications, and a first-class desktop web UI share one durable backend, domain state and authorization model. Responsive/PWA preview is an interim artifact, not native-client acceptance. A chat assistant must not become a second ledger.
 - Offer self-hosted operation. Public repository contains generic code, documentation and clearly labeled synthetic fixtures only. Runtime household data stays private and outside Git.
 
 ## Resolve the high-risk dependencies first
@@ -72,3 +103,23 @@ Measure user effort saved against the same user's manual workflow. Report basket
 
 ## First task for the executor
 Produce an evidence-backed capability matrix and reviewed transaction/consent model. Turn all acceptance scenarios into dependency-ordered small tickets. Implement the local receipt-upload-to-reviewed-expense vertical slice while separately qualifying a retailer handoff. Do not request new subscriptions, connect accounts, invite participants, purchase products or transfer money without fresh action-specific operator authorization.
+
+## Integrated product mandate
+
+The current destination is ONE agent-native household product combining shopping, orders,
+receipts, shared expenses and balances. The agent is an operational actor through typed,
+permissioned tools, not a chat-only interface. Humans and agents use the same validation,
+revision checks, evidence and action history. Purchase approval does not imply anyone's
+financial consent.
+
+Read docs/specs/agent-native-product-contract.md for AN-01–12, connected journey,
+client acceptance and dependency-ordered lanes. These augment A01–A23 and SPEC-00–10;
+no original security, accounting or retailer qualification requirement is waived.
+
+Rival Instacart and Splitwise on measured user outcomes, not a feature checklist or a
+claim of access to their services. Predeclare representative tasks, setup, recovery,
+active user time, correctness and participant comprehension before comparison.
+Native iOS/Android device evidence and first-class desktop workflows are required.
+A responsive preview, synthetic retailer results or a transport diagnostic cannot
+establish whole-product delivery. Existing gates remain; independent product lanes
+must not be monopolized by one unresolved transport investigation.
