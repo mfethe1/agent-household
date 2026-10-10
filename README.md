@@ -20,6 +20,7 @@ Open-source project specification for agent-assisted Costco, Amazon and Target s
 - `docs/specs/`: design papers and the documentation index.
 - `docs/research/`: research briefs.
 - `docs/reviews/`: audit reports.
+- `preview/`: transient local mobile needs preview (no persistence, sign-in or retailer access); see `preview/README.md`.
 
 ## Running checks
 Python 3.11 or newer; code and tests use only the standard library. From the repository root: `python3 -B -m unittest discover -s tests -v`. See [CONTRIBUTING.md](CONTRIBUTING.md) for lint, type-check and review requirements.

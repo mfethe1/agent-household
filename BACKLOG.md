@@ -58,7 +58,7 @@ Ticket-to-issue mappings come only from each issue's own "Existing backlog" line
 
 † Added by this change, pending review; no issue states these mappings yet. A24 (agent and UI mutation safety) maps to R1 and is also a cross-cutting requirement of every ticket whose slice adds a mutating command, tool or UI action. A25 (connector resilience) maps to S1 and E4.
 
-Issues with no backlog ticket: #5 SPEC-03 (optional decision layer; strengthens A02/A19), #6 SPEC-04 (whole-basket optimization and phone review; A03/A22), #63 MOBILE-01, #67 MOBILE-F01 and #66 (grocery-first retailer qualification). The Target observation chain (#23, #25, #33; #29 closed) sits under #3 and #4, per #23. Open blocker and unblock issues are tracked only on GitHub: #13–#18, #20, #24, #26, #48, #49, #62, #64, #65, #68.
+Issues with no backlog ticket: #5 SPEC-03 (optional decision layer; strengthens A02/A19), #6 SPEC-04 (whole-basket optimization and phone review; A03/A22), #63 MOBILE-01, #67 MOBILE-F01 (closed: transient preview merged via #73, `a88da54`) and #66 (grocery-first retailer qualification). The Target observation chain (#23, #25, #33; #29 closed) sits under #3 and #4, per #23. Open blocker and unblock issues are tracked only on GitHub: #13–#18, #20, #24, #26, #48, #49, #62, #64, #65, #68.
 
 ## Merged precursor work
 Every row is offline and synthetic, contract-only or research-only. None is live retailer evidence, and none credits an acceptance item.
@@ -79,6 +79,7 @@ Every row is offline and synthetic, contract-only or research-only. None is live
 | #55 | `0026aa2` | `docs/specs/receipt-upload-extraction-contract.md` | #53 (closed) under #9 | contract-only; closes no ticket |
 | #57 | `276c023` | `docs/research/receipt-wrangler-license-fit.md` | #56 (closed) under #9 | research only; nothing adopted; closes no ticket |
 | #60 | `6f387c0` | `docs/specs/receipt-draft-seam-contract.md` | #58, #59 (closed) under #9 | contract-only; closes no ticket |
+| #73 | `a88da54` | `preview/`: transient local mobile needs preview (in-memory only) | #67 (closed) under #63 | local preview; not M0, closes no ticket |
 
 Document status and pinned hashes: [docs/specs/INDEX.md](docs/specs/INDEX.md).
 

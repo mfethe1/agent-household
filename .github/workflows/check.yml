@@ -98,3 +98,39 @@ jobs:
             echo "::error::basedpyright analyzed no source files"
             exit 1
           fi
+
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Minimum number of preview tests. Raise it whenever preview tests are added.
+      MIN_PREVIEW_TESTS: "5"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Preview syntax and tests (minimum count, no skips)
+        run: |
+          set -euo pipefail
+          node --version
+          node --check preview/app.js
+          node --check preview/test_app.mjs
+          log="$RUNNER_TEMP/preview.log"
+          node --test --test-reporter=tap preview/test_app.mjs | tee "$log"
+          ran="$(sed -n 's/^# tests \([0-9][0-9]*\)$/\1/p' "$log" | tail -n 1)"
+          if [[ -z "$ran" || "$ran" -lt "$MIN_PREVIEW_TESTS" ]]; then
+            echo "::error::ran ${ran:-0} preview tests; MIN_PREVIEW_TESTS is $MIN_PREVIEW_TESTS"
+            exit 1
+          fi
+          if ! grep -qx '# skipped 0' "$log" || ! grep -qx '# todo 0' "$log"; then
+            echo "::error::preview tests were skipped or marked todo"
+            exit 1
+          fi

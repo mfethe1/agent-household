@@ -15,7 +15,7 @@ Companion to [the gap analysis](2026-10-gap-analysis.md) (55 candidate gaps: 46 
 **Main finding.** The SPEC-00 parent (#2) has had no activity since 2026-10-07. Every in-flight lane is now deciding SPEC-00 matters for itself, without SPEC-00:
 - #63/#64 decide architecture, auth and retention.
 - #66 decides adapter authority and token handoff.
-- #67 builds the Need shape and plans persistence follow-ons.
+- #67 builds the Need shape and plans persistence follow-ons. (Update 2026-10-10 05:31Z: #67 closed after its transient, in-memory preview merged via #73 `a88da54`; the open concern is now its persistence and backend follow-ons, starting with PR #74 on need quantities.)
 
 Meanwhile:
 - The receipt lane (#61/#62) is stalled by the 240 s / 399-line admission rules (G11).
@@ -72,7 +72,7 @@ Dispatch: `#N` = existing or filed issue; `proposed: KEY` = drafted issue awaiti
 | 1.6 | G28(C) G32(3) G25(3) G41(2) G03 G05 | Interim rules for #66: token and browser-session custody; diagnostics outside the worktree; substitution-control column; MCP output treated as untrusted; matrix rows land in SPEC-01.md. | Coordinator posts; owner authorizes | Next #66 update cites SPEC-01 rows and the custody rule | #66 |
 | 1.7 | G26 G30 G27 G18(3) G31(4) G24 | #64 Part A as the provisional P0-03 record (pending D-010), cited from the SPEC-00 children. Need lifecycle owner is #4. Part D covers A01–A25. | Owner (D-010); coordinator | Part A independently reviewed on its own; cites the children | #64 |
 | 1.8 | G53 G11 G08 G16 G20 G34 | #61/#62: reviewer rulings on (a)–(e) before redispatch; fixture-counting rule; committed gate config; not the expense model; evidence level SYNTHETIC_LOGIC_ONLY. | Coordinator; allocation reviewer | A ruling for each item posted on #61 before the #62 dispatch | #61 |
-| 1.9 | G09 G10 G41(3) G36 | CI follow-ons after #69: required status check; MIN_TESTS ownership; `node --test` job for `preview/`; private-path guard; secret scanning and push protection; coverage report. | Owner (admin settings); coordinator | Branch protection shows the check; next hermes PR is green before merge | proposed: INFRA-CI |
+| 1.9 | G09 G10 G41(3) G36 | CI follow-ons after #69: required status check; MIN_TESTS ownership; private-path guard; secret scanning and push protection; coverage report. | Owner (admin settings); coordinator | Branch protection shows the check; next hermes PR is green before merge | proposed: INFRA-CI |
 
 ### Phase 2: later (P2/P3)
 
@@ -138,5 +138,8 @@ See `docs/reviews/2026-10-gap-analysis.md` for the reasoning behind each.
 | #72 [SPEC-00 child] P0-02 transaction/consent model review | filed |
 | SPEC00-AUTHZ, SPEC00-DATA, SPEC00-UPLOAD, SPEC07-RECON, SPEC07-FACTS, SPEC07-E1, INFRA-CI | drafted; filing awaits owner go-ahead |
 | Cross-reference comments on #1, #3, #61, #64, #66, #67 | drafted; posting awaits owner go-ahead |
+| `node --test` CI job for `preview/` (merged via #73) | done in #69 |
+
+Issue numbers #73 and #74 were taken by hermes PRs after #70–#72 were filed, so the drafted issues will receive later numbers; #70–#72 refer to them by key.
 
 Filed issues are marked "audit dispatch — not admitted": the coordinator admits them under #1's rules after the decisions in #70.
