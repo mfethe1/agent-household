@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   emptyState, validateNeed, addNeed, editNeed, removeNeed, includeNeed, basketNeeds,
   amountUnits, packageIntentLimit, formatNeed, removeNeedWithRecovery, restoreRemovedNeed,
+  formatHandoff, mountPreview,
 } from './app.js';
 
 // Synthetic adversarial fixtures only; these are not household or retailer data.
@@ -13,7 +14,7 @@ test('empty state, trimmed title and both categories', () => {
   assert.deepEqual(basketNeeds(emptyState()), []);
   for (const category of ['Groceries', 'Other']) {
     assert.deepEqual(validateNeed({ ...fields, title: '  Need  ', category }), {
-      title: 'Need', quantity: 2, category, unit: 'unspecified', packageIntent: '',
+      title: 'Need', quantity: 2, category, unit: 'unspecified', packageIntent: '', tcin: '',
     });
   }
 });
@@ -44,7 +45,7 @@ test('add/edit/include/exclude/remove share stable immutable state and basket', 
   assert.deepEqual(basketNeeds(state), [state.needs[0]]);
   assert.deepEqual(state.needs[0], {
     id: 1, title: 'Edited', quantity: 3, category: 'Other', included: true,
-    unit: 'unspecified', packageIntent: '',
+    unit: 'unspecified', packageIntent: '', tcin: '',
   });
   state = includeNeed(state, 1, false);
   assert.deepEqual(basketNeeds(state), []);
@@ -225,4 +226,153 @@ test('malicious package remains literal through real operations and formatter', 
   assert.equal(formatNeed(basketNeeds(selected)[0]), `2 · each · package/size: ${packageIntent} · Other`);
   assert.equal(initial.needs[0].unit, 'pack');
   assert.equal(globalThis.pwned, undefined);
+});
+
+test('TCIN accepts only empty or exact eight ASCII digits without coercion', () => {
+  for (const tcin of ['', '00000000', '01234567', '99999999']) {
+    assert.equal(validateNeed({ ...fields, tcin }).tcin, tcin);
+  }
+  const hostile = { toString() { throw new Error('must not coerce'); } };
+  for (const tcin of ['1234567', '123456789', '1234567x', '１２３４５６７８', '١٢٣٤٥٦٧٨',
+    ' 12345678', '12345678 ', '12345678\n', '\n', 12345678, null, undefined, true,
+    new String('12345678'), [], hostile]) {
+    const state = addNeed(emptyState(), fields);
+    for (const operation of [addNeed.bind(null, state), editNeed.bind(null, state, 1)]) {
+      assert.throws(() => operation({ ...fields, tcin }), error => error.field === 'tcin');
+      assert.equal(state.needs[0].tcin, '');
+    }
+  }
+});
+
+test('handoff has exact ordered included fields, literal intent, TCIN clearing and empty state', () => {
+  const title = '<script>globalThis.pwned=true</script>';
+  const bound = { ...fields, title, quantity: 0.5, unit: 'kg', category: 'Other',
+    packageIntent: '<img src=x onerror=synthetic()>', tcin: '01234567' };
+  let state = addNeed(addNeed(emptyState(), bound), { ...fields, title: 'Excluded' });
+  state = addNeed(state, { ...fields, title: 'Last' });
+  state = includeNeed(includeNeed(state, 3, true), 1, true);
+  state = editNeed(state, 1, bound);
+  assert.deepEqual(basketNeeds(state)[0], { ...bound, id: 1, included: true });
+  assert.equal(formatHandoff(state), [
+    'Basket needs — intent only, not matched products. No dietary-safety or availability claim.',
+    'TCIN as entered — not verified against Target. You perform all lookup, matching and purchase yourself.',
+    `${title} — 0.5 kg · package/size: ${bound.packageIntent} · TCIN: 01234567 · category: Other`,
+    'Last — 2 unit not specified · package/size: none · TCIN: none · category: Groceries',
+  ].join('\n'));
+  const removed = removeNeedWithRecovery(state, 1);
+  assert.deepEqual(restoreRemovedNeed(removed.state, removed.recovery), state);
+  state = includeNeed(includeNeed(state, 1, false), 1, true);
+  assert.equal(state.needs[0].tcin, '01234567');
+  state = editNeed(state, 1, { ...bound, tcin: '' });
+  assert.equal(state.needs[0].tcin, '');
+  assert.ok(!formatHandoff(state).includes('01234567'));
+  assert.equal(formatHandoff(emptyState()), 'No needs included. Nothing to hand off.');
+  assert.equal(formatHandoff(addNeed(emptyState(), bound)), formatHandoff(emptyState()));
+  assert.equal(globalThis.pwned, undefined);
+});
+
+// Minimal synthetic DOM adapter executes mountPreview, not a duplicated UI model.
+function mounted(clipboard) {
+  const nodes = new Map();
+  const document = { defaultView: { navigator: { clipboard } },
+    getElementById: id => nodes.get(id), createTextNode: text => ({ textContent: text }) };
+  document.createElement = () => {
+    const handlers = new Map();
+    return { textContent: '', value: '', hidden: false, disabled: false, dataset: {}, children: [],
+      attrs: new Map(), append(...children) { this.children.push(...children); },
+      replaceChildren() { this.children = []; },
+      setAttribute(key, value) { this.attrs.set(key, value); },
+      removeAttribute(key) { this.attrs.delete(key); },
+      addEventListener(type, action) { handlers.set(type, action); },
+      emit(type) { return handlers.get(type)?.({ preventDefault() {} }); },
+      focus() { document.activeElement = this; }, select() { this.selected = true; },
+      querySelector(selector) {
+        const row = this.children.find(child => child.dataset?.needId === selector.match(/"(\d+)"/)[1]);
+        return row.children[2].children[0];
+      },
+    };
+  };
+  for (const id of ['title', 'quantity', 'category', 'unit', 'packageIntent', 'tcin', 'status',
+    'error', 'need-form', 'editor-heading', 'submit', 'cancel', 'undo-removal', 'review',
+    'needs', 'basket', 'needs-empty', 'basket-empty', 'basket-heading', 'prepare-handoff',
+    'handoff', 'handoff-heading', 'handoff-text', 'copy-handoff']) nodes.set(id, document.createElement());
+  const get = id => nodes.get(id);
+  get('need-form').reset = () => {
+    for (const id of ['title', 'quantity', 'packageIntent', 'tcin']) get(id).value = '';
+    get('category').value = 'Groceries'; get('unit').value = 'unspecified';
+  };
+  get('need-form').reset();
+  mountPreview(document);
+  const submit = (values = fields) => {
+    for (const [id, value] of Object.entries(values)) get(id).value = String(value);
+    get('need-form').emit('submit');
+  };
+  const action = index => get('needs').children[0].children[3].children[index].emit('click');
+  const include = () => {
+    const checkbox = get('needs').children[0].children[2].children[0];
+    checkbox.checked = !checkbox.checked; checkbox.emit('change');
+  };
+  return { get, document, submit, action, include, prepare: () => get('prepare-handoff').emit('click') };
+}
+
+test('mounted handoff invalidates on every mutation but not editor open/cancel or errors', async () => {
+  const writes = [];
+  const ui = mounted({ writeText: async text => { writes.push(text); } });
+  const { get, submit, action, include, prepare } = ui;
+  prepare();
+  assert.equal(get('handoff-text').textContent, formatHandoff(emptyState()));
+  assert.equal(get('copy-handoff').disabled, true);
+  submit({ ...fields, tcin: '01234567' }); include(); prepare();
+  assert.deepEqual(writes, []);
+  await get('copy-handoff').emit('click');
+  assert.deepEqual(writes, [get('handoff-text').textContent]);
+  const copied = get('status').textContent;
+  const text = get('handoff-text').textContent;
+  action(0);
+  assert.equal(get('tcin').value, '01234567');
+  submit({ ...fields, tcin: 'bad' });
+  assert.equal(get('tcin').attrs.get('aria-invalid'), 'true');
+  assert.equal(ui.document.activeElement, get('tcin'));
+  get('cancel').emit('click');
+  assert.equal(get('handoff-text').textContent, text);
+  assert.equal(get('status').textContent, copied);
+  const invalidated = () => {
+    assert.equal(get('handoff').hidden, true);
+    assert.equal(get('handoff-text').textContent, '');
+    assert.equal(get('copy-handoff').disabled, true);
+    assert.ok(!get('status').textContent.includes('copied'));
+    get('copy-handoff').emit('click');
+    assert.deepEqual(writes, [text]);
+  };
+  action(0); submit({ ...fields, tcin: '' }); invalidated();
+  prepare(); include(); invalidated();
+  include(); prepare(); submit(fields); invalidated();
+  prepare(); action(1); invalidated();
+  prepare(); get('undo-removal').emit('click'); invalidated();
+});
+
+test('mounted clipboard fallback is honest and late completion cannot relabel newer handoff', async () => {
+  for (const clipboard of [undefined, { writeText: async () => { throw new Error('denied'); } }]) {
+    const ui = mounted(clipboard);
+    ui.submit(); ui.include(); ui.prepare();
+    await ui.get('copy-handoff').emit('click');
+    assert.match(ui.get('status').textContent, /copy it manually/);
+    assert.equal(ui.document.activeElement, ui.get('handoff-text'));
+    assert.equal(ui.get('handoff-text').selected, true);
+  }
+  for (const fails of [false, true]) {
+    let finish;
+    const ui = mounted({ writeText: () => new Promise((resolve, reject) => {
+      finish = () => fails ? reject(new Error('late denial')) : resolve();
+    }) });
+    ui.submit(); ui.include(); ui.prepare();
+    const pending = ui.get('copy-handoff').emit('click');
+    ui.submit(); ui.prepare();
+    const status = ui.get('status').textContent;
+    const focused = ui.document.activeElement;
+    finish(); await pending;
+    assert.equal(ui.get('status').textContent, status);
+    assert.equal(ui.document.activeElement, focused);
+    assert.equal(ui.get('copy-handoff').disabled, false);
+  }
 });
